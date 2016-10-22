@@ -61,7 +61,7 @@ END
 		$res = $this->db->query("SELECT * FROM countries WHERE name = $name");
 		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
 			$nextEl=(constant($class ."::MODEL") == self::DEMOCRATIC ? time() + (30*24*60*60) : time() + (15*24*60*60));
-			$defaultOwner = Main::$instance->getConfig()->get("default_owner");
+			$defaultOwner = null;
 			$this->db->exec("INSERT INTO countries VALUES ('$name', '{}', '$defaultOwner', '{}', $nextEl, 0) ");
 		}
 		
@@ -212,7 +212,7 @@ END
         $query =  $this->db->query("SELECT citizens FROM countries WHERE name = '$this->name'")->fetchArray();
 		$query = $query[array_keys($query)[0]];
 		if(is_array($query)) $query[array_keys($query)[0]];
-		$json =  json_decode($query, true);
+		return  json_decode($query, true);
     }
 	
 	

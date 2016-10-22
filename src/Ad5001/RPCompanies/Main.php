@@ -32,66 +32,69 @@ use Ad5001\RPCompanies\contries\Amazonia;
 class Main extends PluginBase implements Listener {
 
 
-    public $instance;
+    const PREFIX = "§l§o§a[§r§l§bRPCompanies§o§a]§r§f ";
 
+    const AUTHOR = "Ad5001";
 
-
-
-   public function onEnable(){
-
-
-        $this->reloadConfig();
-
-
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
-
-        CountryManager::registerCountry(new USA($this, "USA"));
-        CountryManager::registerCountry(new Russia($this, "Russia"));
-        CountryManager::registerCountry(new Peru($this, "Peru"));
-        CountryManager::registerCountry(new France($this, "France"));
-        CountryManager::registerCountry(new Egypt($this, "Egypt"));
-        CountryManager::registerCountry(new China($this, "China"));
-        CountryManager::registerCountry(new Australia($this, "Australia"));
-        CountryManager::registerCountry(new Amazonia($this, "Amazonia"));
-
-
-        self::$instance = $this;
-
-    }
-
-
-
-
-    public function onLoad(){
-
-
-        $this->saveDefaultConfig();
-
-
-    }
-
-
-
-
-    public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
-
-
-        switch($cmd->getName()){
-
-
-            case 'default':
-
-
-            break;
-
-
+    const GITHUB = "https://github.com/Ad5001/RPCompanies";
+	
+	
+	public $instance;
+	
+	
+	
+	
+	public function onEnable(){
+		
+		$this->reloadConfig();
+		
+		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+		
+		CountryManager::registerCountry(new USA($this, "USA", "Ad5001\\RPCompanies\\country\\USA"));
+		CountryManager::registerCountry(new Russia($this, "Russia", "Ad5001\\RPCompanies\\country\\Russia"));
+		CountryManager::registerCountry(new Peru($this, "Peru", "Ad5001\\RPCompanies\\country\\Peru"));
+		CountryManager::registerCountry(new France($this, "France", "Ad5001\\RPCompanies\\country\\France"));
+		CountryManager::registerCountry(new Egypt($this, "Egypt", "Ad5001\\RPCompanies\\country\\Egypt"));
+		CountryManager::registerCountry(new China($this, "China", "Ad5001\\RPCompanies\\country\\China"));
+		CountryManager::registerCountry(new Australia($this, "Australia", "Ad5001\\RPCompanies\\country\\Australia"));
+		CountryManager::registerCountry(new Amazonia($this, "Amazonia", "Ad5001\\RPCompanies\\country\\Amazonia"));
+		
+		self::$instance = $this;
+		
+	}
+	
+	
+	
+	
+	public function onLoad(){
+		
+		$this->saveDefaultConfig();
+		
+	}
+	
+	
+	
+	/*
+	#########################
+	Event methods !
+	
+	Used to power everything on the plugin.
+	
+	##########################
+	*/
+	
+	
+	
+	public function onPlayerMove(\pocketmine\event\player\PlayerMoveEvent $event) {
+		if($event->getPlayer()->getLevel()->getName() == $this->getConfig()->get("RPLevel")) {
+			if(!isset($event->getPlayer()->country)) {
+				$cOfP = CountryManager::getCountryOfPlayer($event->getPlayer());
+				if(is_null($cOfP)) {
+					$cOfP = CountryManager::getCountries()[array_keys(CountryManager::getCountries())[rand(0, count(CountryManager::getCountries()))]];
+					// 					Beside this long line, it's basicly choosing a random country :P
+                    $event->getPlayer()->sendMessage(self::PREFIX . "§2Welcome to RPCompanies !\n".self::PREFIX." §2You succefully joined country {$cOfP->getName()} !");
+                }
+            }
         }
-
-
-     return false;
-
-
     }
-
-
 }

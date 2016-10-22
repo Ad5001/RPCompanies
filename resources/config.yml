@@ -1,4 +1,11 @@
 ---
-# This is the default config generated with ImagicalPlugCreator. (C) ImagicalPlugCreator - Ad5001 2016
-version: 1.0
+# Welcome to RPComanies config !
+
+# Current countries: Amazonia, Australia, China, Egypt, France, Peru, Russia, USA.
+
+# This is the world where the plugin should affect (add the level name here BEFORE 
+# generating so the countries will generate proprely)
+RPLevel: world
+
+
 ...

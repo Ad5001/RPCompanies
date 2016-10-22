@@ -3,6 +3,8 @@ name: RPCompanies
 author:  Ad5001
 version: 1.0
 api: [2.0.0]
+description: The PocketMine plugin remaking the world companies and countries system.
+Github: https://github.com/Ad5001/RPCompanies
 main: "Ad5001\RPCompanies\Main"
 commands: []
 permissions: []

@@ -24,19 +24,16 @@ class CountryManager {
 
 
 
-    protected $countries = [];
+   protected $countries = [];
 
 
 
 
    public function __construct(Main $main) {
 
-
         $this->main = $main;
 
-
         $this->server = $main->getServer();
-
 
     }
 
@@ -50,6 +47,21 @@ class CountryManager {
 
     public static function getCountries() : array {
         return self::$countries;
+    }
+
+
+    public function getCountryByName(string $name) {
+        return isset(self::$countries[$name]) ? self::$countries[$name] : null;
+    }
+
+
+    public static function getCountryOfPlayer(Player $player) {
+        foreach(self::getCountries() as $c) {
+            if(in_array($player->getName(), $c->getCitizens())) {
+                return $c;
+            }
+        }
+        return null;
     }
 
 
