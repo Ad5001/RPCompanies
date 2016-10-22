@@ -23,7 +23,7 @@ use Ad5001\RPCompanies\Main;
 
 
 
-class Task1 extends PluginTask {
+class ElectionCountdownTask extends PluginTask {
 
 
 
@@ -48,7 +48,11 @@ class Task1 extends PluginTask {
    public function onRun($tick) {
 
 
-        $this->main->getLogger()->debug('Task ' . get_class($this) . ' is running on $tick'); 
+        foreach (\Ad5001\RPCompanies\country\CountryManager as $c) {
+            if($c->getNextElectionTime() >= time() - 60*60*24) {
+                $c->sendMessage(time() - $c->getNextElectionTime());
+            }
+        }
 
 
     }
