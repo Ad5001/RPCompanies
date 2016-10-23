@@ -54,7 +54,8 @@ CREATE TABLE countries {
     old_owners STRING,
     next_election INT,
     is_claimed BOOL,
-    citizens STRING
+    citizens STRING,
+	trourists STRING
 }
 END
 ");
@@ -62,7 +63,7 @@ END
 		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
 			$nextEl=(constant($class ."::MODEL") == self::DEMOCRATIC ? time() + (30*24*60*60) : time() + (15*24*60*60));
 			$defaultOwner = null;
-			$this->db->exec("INSERT INTO countries VALUES ('$name', '{}', '$defaultOwner', '{}', $nextEl, 0) ");
+			$this->db->exec("INSERT INTO countries VALUES ('$name', '{}', '$defaultOwner', '{}', $nextEl, 0, '{}', '{}') ");
 		}
 		
 	}
@@ -214,6 +215,41 @@ END
 		if(is_array($query)) $query[array_keys($query)[0]];
 		return  json_decode($query, true);
     }
+
+
+
+	/*
+	Adds a tourist to the Country
+	@param     $tourist    \pocketmine\Player
+	*/
+	public function addTourist(\pocketmine\Player $tourist) {
+		$query =  $this->db->query("SELECT tourists FROM countries WHERE name = '$this->name'")->fetchArray();
+		$query = $query[array_keys($query)[0]];
+		if(is_array($query)) $query[array_keys($query)[0]];
+		$json =  json_decode($query, true);
+		$json[] = $tourist->getName();
+		$json = json_encode($json);
+		$this->db->exec("UPDATE countries SET tourists = '$json' WHERE name = '$this->name");
+		return true;
+	}
+
+
+
+	/*
+	Remove tourists from a Country
+	@param     $tourist    \pocketmine\Player
+	*/
+	public function removeTourist(\pocketmine\Player $tourist) {
+		$query =  $this->db->query("SELECT tourists FROM countries WHERE name = '$this->name'")->fetchArray();
+		$query = $query[array_keys($query)[0]];
+		if(is_array($query)) $query[array_keys($query)[0]];
+		$json =  json_decode($query, true);
+		if(!in_array($tourist->getName(), $json)) return true;
+		unset($json[$tourist->getName()]);
+		$json = json_encode($json);
+		$this->db->exec("UPDATE countries SET tourists = '$json' WHERE name = '$this->name");
+		return true;
+	}
 	
 	
 	

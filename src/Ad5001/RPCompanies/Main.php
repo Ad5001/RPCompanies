@@ -30,16 +30,18 @@ use Ad5001\RPCompanies\contries\Amazonia;
 
 
 class Main extends PluginBase implements Listener {
-
-
-    const PREFIX = "§l§o§a[§r§l§bRPCompanies§o§a]§r§f ";
-
-    const AUTHOR = "Ad5001";
-
-    const GITHUB = "https://github.com/Ad5001/RPCompanies";
+	
+	
+	const PREFIX = "§l§o§a[§r§l§bRPCompanies§o§a]§r§f ";
+	
+	const AUTHOR = "Ad5001";
+	
+	const GITHUB = "https://github.com/Ad5001/RPCompanies";
 	
 	
 	public $instance;
+	protected $countryChange;
+	protected $travel;
 	
 	
 	
@@ -70,18 +72,28 @@ class Main extends PluginBase implements Listener {
 		
 		$this->saveDefaultConfig();
 		
+		$this->countryChange = [];
+		
+		$this->travel = [];
+		
 	}
 	
 	
 	
+	
+	
+	
+	
+	
+	
 	/*
-	#########################
-	Event methods !
+	##########################
+							Event methods !
 	
 	Used to power everything on the plugin.
 	
 	##########################
-	*/
+							*/
 	
 	
 	
@@ -93,8 +105,60 @@ class Main extends PluginBase implements Listener {
 					$cOfP = CountryManager::getCountries()[array_keys(CountryManager::getCountries())[rand(0, count(CountryManager::getCountries()))]];
 					// 					Beside this long line, it's basicly choosing a random country :P
                     $event->getPlayer()->sendMessage(self::PREFIX . "§2Welcome to RPCompanies !\n".self::PREFIX." §2You succefully joined country {$cOfP->getName()} !");
+					$cOfP->onCitizenEnter($event->getPlayer());
                 }
+				$event->getPlayer()->country = $cOfP;
             }
+			if(CountryManager::getCountryFromPlayer($event->getPlayer()) !== $event->getPlayer()->country && (!isset($this->travel[$event->getPlayer()->getName()]) || $this->travel[$event->getPlayer()->getName()]) !== CountryManager::getCountryFromPlayer($event->getPlayer())) {
+				$event->getPlayer()->sendMessage(self::PREFIX . "§cYou're about to leave {
+						$event->getPlayer()->country->getName()
+					}
+					to go to " . CountryManager::getCountryFromPlayer($event->getPlayer())->getName() . "\n" . self::PREFIX . "Do you want to (§ll§r)eave your current country, is this a simple (§lt§r)ravel (costs {
+						$this->economy->translate(100)
+					}
+					) or doing (§ln§r)othing? Enter your choice in the chat.");
+				$this->countryChange[$event->getPlayer()->getName()] = [CountryManager::getCountryFromPlayer($event->getPlayer()), $event->getTo()];
+				$event->setCancelled();
+			}
         }
     }
+
+
+	/*
+	Used to check if a player talks
+	@param     $event    \pocketmine\event\player\PlayerChatEvent
+	*/
+	public function onPlayerChat(\pocketmine\event\player\PlayerChatEvent $event) {
+		if($event->getPlayer()->getLevel()->getName() == $this->getConfig()->get("RPLevel")) {
+			if(isset($this->countryChange[$event->getPlayer()->getName()])) {
+				switch (strtolower($event->getMessage())) {
+					case 'leave':
+					case 'l':
+					$event->getPlayer()->country->onCitizenLeave($event->getPlayer());
+					$this->countryChange[$event->getPlayer()->getName()][0]->onCitizenEnter($event->getPlayer());
+					$event->getPlayer()->country = $this->countryChange[$event->getPlayer()->getName()][0];
+					$event->getPlayer()->teleport($this->countryChange[$event->getPlayer()->getName()][1]);
+					$event->getPlayer()->sendMessage(self::PREFIX . "§2Welcome to " . $event->getPlayer()->country->getName() ." !");
+					unset($this->countryChange[$event->getPlayer()->getName()]);
+					break;
+					case 'travel':
+					case 't':
+					$this->travel[$event->getPlayer()->getName()] = $this->countryChange[$event->getPlayer()->getName()][0];
+					$this->economy->takeMoney($event->getPlayer()->getName(), 100);
+					$this->economy->addMoney("§aCountry_" . $this->countryChange[$event->getPlayer()->getName()][0]->getName(), 100);
+					$event->getPlayer()->sendMessage(self::PREFIX."§2You're now travelling on " . $this->travel[$event->getPlayer()->getName()]->getName() .".");
+					unset($this->countryChange[$event->getPlayer()->getName()]);
+					break;
+					case 'nothing':
+					case 'n':
+					$event->getPlayer()->sendMessage(self::PREFIX."§2As you wish...");
+					unset($this->countryChange[$event->getPlayer()->getName()]);
+					break;
+					default:
+					$event->getPlayer()->sendMessage(self::PREFIX."§cWhat? I did not understand. You can choose 'n' to do nothing, 't' to go travel to this country for {$this->economy->translate(100)} or to 'l' to leave your country and install yourself into this new country.");
+					break;
+				}
+			}
+		}
+	}
 }
