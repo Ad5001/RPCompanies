@@ -3,7 +3,7 @@
 <center><h2>Choose a language</h2></center>
 <!-- Note for pull requests.
 Feel free to translate the README in your lang if not done and add a button here.-->
-<table><tr><td style="cursor: pointer;"><center><a href="#Français">French</a></center></td><td style="cursor: pointer;"><center><a href="#English">English</a></center></td></tr></table>
+<table><tr><td style="cursor: pointer;"><center><a href="#français">French</a></center></td><td style="cursor: pointer;"><center><a href="#english">English</a></center></td></tr></table>
 <br />
 <br />
 <br />
