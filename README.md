@@ -1,40 +1,9 @@
-<style>
-h1, h2, h3, h4, p, boddy {
-    font-family: Segoe UI light;
-}
-h1 {
-    padding: 40px;
-}
-h2 {
-    padding: 10px;
-}
-h3 {
-    padding: 5px;
-}
-table {
-    width: 100%;
-}
-td {
-     border: solid 0.5px lightgray
-}
-td.button {
-    cursor: pointer;
-}
-</style>
-<script>
-var brs = document.getElementByTagName("brs");
-for(i=0;i<500;i++) {
-document.getElemen
-}
-document.getElementById("toFrench").onclick = 'location.replace("#Francais")';
-document.getElementById("toEng").onclick = 'location.replace("#English")';
-</script>
-<center><h1>RPCompanies</h1></center>
+<body style="font-family: Segoe UI light;"><center><h1 style="padding: 40px;">RPCompanies</h1></center>
 
 <center><h2>Choose a language</h2></center>
 <!-- Note for pull requests.
 Feel free to translate the README in your lang if not done and add a button here.-->
-<table><tr><td class="button" id="toFrench"><center>[French](#Français)</center></td><td class="button" id="toEng"><center>[English](#English)</center></td></tr></table>
+<table><tr><td style="cursor: pointer;"><center><a href="#Français">French</a></center></td><td style="cursor: pointer;"><center><a href="#English">English</a></center></td></tr></table>
 <br />
 <br />
 <br />
@@ -102,10 +71,4 @@ Restart your server and modify the config as your wishs (Or your default world w
 Après ceci, redemarez une seconde fois le serveur et vous serez setup!     
 
 To get more informations about the plugin, go check out the [wiki](/wiki).
-
-
-
-<script>
-document.getElementById("toFrench").onclick = 'location.replace("#Francais")';
-document.getElementById("toEng").onclick = 'location.replace("#English")';
-</script>
+</body>
