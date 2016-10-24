@@ -37,7 +37,7 @@ class Amazonia extends Country { // This is not really a country, but Brazil =/=
         foreach($this->getCitizens() as $c) {
             $z = Server::getInstance()->getPlayer($c);
             if(!is_null($z)) {
-                $z->sendMessage(Main::PREFIX . "§2Election started ! Choose your new prasident by using /choose <Player>. You have 2 (real life) days.");
+                $z->sendMessage(Main::PREFIX . "§2Election started ! Choose your new prasident by using /vote <Player>. You have 2 (real life) days.");
             } else {
                 // TODO, Add a way to notify the user (by any kind of mail for example).
             }

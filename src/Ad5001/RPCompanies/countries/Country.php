@@ -280,7 +280,7 @@ abstract class Country {
 	@param     $from    Player
 	@param     $to    Player
 	*/
-	public function vote(Player $from, Player $to) {}
+	public function vote(Player $from, string $to) {}
 
 
 	/*
