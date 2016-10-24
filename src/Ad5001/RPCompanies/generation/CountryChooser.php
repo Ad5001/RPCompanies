@@ -25,7 +25,7 @@ use Ad5001\RPCompanies\country\Country;
 
 
 
-class ContryChooser {
+class CountryChooser {
 
 
 

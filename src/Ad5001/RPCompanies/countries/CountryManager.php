@@ -31,7 +31,7 @@ class CountryManager {
 
 		self::$countries[$country->getName()] = $country;
 		Main::$instance->getEconomyProvider()->createAccount("§aCountry_" . $country->getName());
-		
+
 	}
 	
 	

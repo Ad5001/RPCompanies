@@ -44,26 +44,18 @@ abstract class Country {
 		
 		$this->main = $main;
 		$this->name = $name;
-		$this->db = new \SQLite3($main->getDataFolder() . "database.db");
-		$this->db->exec("IF OBJECT_ID('countries', 'U') IS NULL 
-BEGIN
-CREATE TABLE countries {
-    name STRING,
-    chunks STRING,
-    owner STRING,
-    old_owners STRING,
-    next_election INT,
-    is_claimed BOOL,
-    citizens STRING,
-	trourists STRING
-}
-END
-");
+		$main->getEconomyProvider()->register("§aCountry_$name", 10000);
 		$res = $this->db->query("SELECT * FROM countries WHERE name = $name");
 		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
-			$nextEl=(constant($class ."::MODEL") == self::DEMOCRATIC ? time() + (30*24*60*60) : time() + (15*24*60*60));
-			$defaultOwner = null;
-			$this->db->exec("INSERT INTO countries VALUES ('$name', '{}', '$defaultOwner', '{}', $nextEl, 0, '{}', '{}') ");
+			$defaultOwner = '';
+			$this->db->exec("INSERT INTO countries VALUES ('$name', '{}', '$defaultOwner', '{}', 0, '{}', '{}') ");
+		}
+		$res = $this->db->query("SELECT * FROM elections WHERE name = $name");
+		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
+			$nextEl = (constant($class ."::MODEL") == self::DEMOCRATIC ? time() + (30*24*60*60) : time() + (15*24*60*60));
+			$defaultOwner = '';
+			$model = constant($class . "::MODEL");
+			$this->db->exec("INSERT INTO elections VALUES ('$name', '$model', '$defaultOwner', '$nextEl', 0, 0, '{}', '{}') ");
 		}
 		
 	}
@@ -75,7 +67,7 @@ END
 	
 	
 	public function getNextElectionTime() {
-		$query =  $this->db->query("SELECT next_election FROM countries WHERE name = '$this->name'")->fetchArray();
+		$query =  $this->db->query("SELECT next_election FROM elections WHERE name = '$this->name'")->fetchArray();
 		$query = $query[array_keys($query)[0]];
 		if(is_array($query)) $query[array_keys($query)[0]];
 		return $query;
@@ -83,14 +75,17 @@ END
 	
 	
 	public function setNextElectionTime(int $time) {
-		return $this->db->exec("UPDATE countries SET next_election = $time WHERE name = '$this->name'");
+		return $this->db->exec("UPDATE election SET next_election = $time WHERE name = '$this->name'");
 	}
 	
 	
-	abstract function startElection();
+	public abstract function startElection();
 	
 	
-	abstract function sendMessage(int $timeleft);
+	public abstract function stopElection();
+	
+	
+	public abstract function sendMessage(int $timeleft);
 	
 	
 	public function addChunk(FullChunk $chunk) {
@@ -128,8 +123,11 @@ END
 	
 	
 	
-	public function setOwner(Player $player) {
-		return $this->db->exec("UPDATE countries SET owner = '{$player->getName()}'");
+	public function setOwner($player) {
+		if($player instanceof Player) {
+			$player = $player->getName();
+		}
+		return $this->db->exec("UPDATE countries SET owner = '{$player}'");
 	}
 	
 	
@@ -250,8 +248,48 @@ END
 		$this->db->exec("UPDATE countries SET tourists = '$json' WHERE name = '$this->name");
 		return true;
 	}
+
+
+
+	/*
+	Get an array of tourists.
+	*/
+	public function getTourists() {
+        $query =  $this->db->query("SELECT tourists FROM countries WHERE name = '$this->name'")->fetchArray();
+		$query = $query[array_keys($query)[0]];
+		if(is_array($query)) $query[array_keys($query)[0]];
+		return  json_decode($query, true);
+	}
 	
 	
+	/*
+	Check if the election started
+	*/
+	public function isElectionStarted() {
+		$ownerarray  = $this->db->query("SELECT election_started FROM election WHERE name = $this->name")->fetchArray();
+		$ownerarray = $ownerarray[array_keys($ownerarray)[0]];
+		if(is_array($ownerarray)) {
+			$ownerarray = $ownerarray[array_keys($ownerarray)[0]];
+		}
+		return $ownerarray;
+	}
+
+
+	/*
+	Vote function. Only for Democratik countries
+	@param     $from    Player
+	@param     $to    Player
+	*/
+	public function vote(Player $from, Player $to) {}
+
+
+	/*
+	Translate a countdown message fpr democratik
+	@param     $msg    string
+	*/
+	public static function translateDemocraricMSG(string $msg) {
+		return Main::PREFIX . "§2Elections starts in $msg ! Be prepared !";
+	}
 	
 	
 }

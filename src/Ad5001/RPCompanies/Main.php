@@ -14,6 +14,7 @@ use pocketmine\level\generator\Generator;
 
 // Countries releated classes
 use Ad5001\RPCompanies\contries\CountryManager;
+use Ad5001\RPCompanies\generation\CountryChooser;
 use Ad5001\RPCompanies\contries\Country;
 use Ad5001\RPCompanies\contries\USA;
 use Ad5001\RPCompanies\contries\Russia;
@@ -62,6 +63,35 @@ class Main extends PluginBase implements Listener {
 		CountryManager::registerCountry(new Amazonia($this, "Amazonia", "Ad5001\\RPCompanies\\country\\Amazonia"));
 		
 		self::$instance = $this;
+
+		$this->db = new \SQLite3($main->getDataFolder() . "database.db");
+		$this->db->exec("IF OBJECT_ID('countries', 'U') IS NULL 
+BEGIN
+CREATE TABLE countries {
+    name STRING,
+    chunks STRING,
+    owner STRING,
+    old_owners STRING,
+    is_claimed BOOL,
+    citizens STRING,
+	trourists STRING
+}
+END
+");
+		$this->db->exec("IF OBJECT_ID('elections', 'U') IS NULL 
+BEGIN
+CREATE TABLE elections {
+    name STRING,
+	modal INT,
+    owner STRING,
+    next_election INT,
+	end_election INT,
+	election_started BOOL,
+    citizens STRING,
+	votes STRING
+}
+END
+");
 		
 	}
 	
@@ -159,6 +189,20 @@ class Main extends PluginBase implements Listener {
 					break;
 				}
 			}
+		}
+	}
+
+
+
+
+	/*
+	Called when a chunk generates.
+	@param     $event    pocketmine\event\level\ChunkLoadEvent
+	*/
+	public function onChunkLoad(\pocketmine\event\level\ChunkLoadEvent $event) {
+		if($event->getChunk()->getLevel()->getName() == $this->getConfig()->get("RPLevel") && is_null(CountryManager::getCountryFromPos(new \pocketmine\level\Position($event->getChunk()->x, 10, $event->getChunk()->z, $event->getChunk()->getLevel())))) {
+			$c = ContryChooser::getCountryByBiomeId($event->getChunk()->getBiomeId(7, 7));
+			$c->addChunk($event->getChunk());
 		}
 	}
 }
