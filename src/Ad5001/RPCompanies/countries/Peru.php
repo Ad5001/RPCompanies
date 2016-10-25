@@ -67,6 +67,7 @@ class Peru extends Country {
         $winner = array_keys($votes)[0];
         $this->setOwner($player);
         $this->db->exec("UPDATE elections SET election_started = 0 WHERE name = '$this->name");
+        $this->db->exec("UPDATE elections SET next_election = time() + (30*24*60*60) WHERE name = '$this->name");
         foreach($this->getCitizens() as $c) {
             $z = Server::getInstance()->getPlayer($c);
             if(!is_null($z)) {
@@ -86,13 +87,13 @@ class Peru extends Country {
         if($msgid % (60*60) == 0) {
             $msg = Country::translateDemocraticMSG($msgid / 60*60 . ' hours');
         }
-        if($msgid < 60*60 && $msgid % (10*60)) {
+        if($msgid < 60*60 && $msgid % (10*60) == 0) {
             $msg = Country::translateDemocraticMSG($msgid / 10*60 . ' minutes');
         }
-        if($msgid < 10*60 && $msgid % (60)) {
+        if($msgid < 10*60 && $msgid % (60) == 0) {
             $msg = Country::translateDemocraticMSG($msgid / 60 . ' minutes');
         }
-        if($msgid < 60 && $msgid % (10)) {
+        if($msgid < 60 && $msgid % (10) == 0) {
             $msg = Country::translateDemocraticMSG($msgid / 10 . ' seconds');
         }
         if($msgid < 10) {
@@ -101,7 +102,7 @@ class Peru extends Country {
         foreach($this->getCitizens() as $c) {
             $z = Server::getInstance()->getPlayer($c);
             if(!is_null($z)) {
-                $z->sendMessage(Main::PREFIX . "§2Election started ! Choose your new prasident by using /choose <Player>. You have 2 (real life) days.");
+                $z->sendMessage($msg);
             }
         }
     }

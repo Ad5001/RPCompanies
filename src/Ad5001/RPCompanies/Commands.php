@@ -35,14 +35,17 @@ class Commands extends PluginCommand  {
 	
 	
 	
+	
 	/*
 	Register all the Commands
-		    @param     $cmd    string
-		    */
-		public static function registerAll() {
+			    @param     $cmd    string
+			    */
+			public static function registerAll() {
 		$main = Main::$instance;
 		$cm = Server::getInstance()->getCommandMap();
 		$cm->register(self::class, new Commands($main, "vote", "Vote for a player on your countrie's elections !", "/vote <player EXACT usename of your country>"));
+		$cm->register(self::class, new Commands($main, "mngcountry", "Manage your country.", "/mngcountry <command> [parameter]"));
+		$cm->register(self::class, new Commands($main, "select", "Choose the one who will succeed you in the dicatorship..", "/select <player EXACT usename of your country>"));
 	}
 	
 	
@@ -61,7 +64,7 @@ class Commands extends PluginCommand  {
 		parent::__construct($command, $main);
 		
 		$this->cmd = $command;
-		$this->usageMessage = $this->core->getLang("eng")->translateString($usage, []);
+		$this->usageMessage = $usage;
 		
 		
 	}
@@ -69,34 +72,84 @@ class Commands extends PluginCommand  {
 	
 	
 	
+	
 	/*
 	Called when one of the defined commands of the plugin has been called
-		    @param     $sender     \pocketmine\command\CommandSender
-		    @param     $cmd          \pocketmine\command\Command
-		    @param     $label         mixed
-		    @param     $args          array
-		    */
-		public function execute(\pocketmine\command\CommandSender $sender, \pocketmine\command\Command $cmd, $label, array $args) {
+			    @param     $sender     \pocketmine\command\CommandSender
+			    @param     $cmd          \pocketmine\command\Command
+			    @param     $label         mixed
+			    @param     $args          array
+			    */
+			public function execute(\pocketmine\command\CommandSender $sender, \pocketmine\command\Command $cmd, $label, array $args) {
 		if($sender instanceof Player) {
 			if($sender->getLevel()->getName() == $this->main->getConfig()->get("RPLevel")) {
 				switch($cmd->getName()) {
+					
+					
 					case "vote":
 					$c = CountryManager::getCountryOfPlayer($sender);
 					if(constant(get_class($c) . "::MODEL") !== Country::DEMOCRATIC) {
-						$sender->sendMessage(self::PREFIX . "§cYour country isn't democratic ! You cannot vote for your coountry leader !");
-					} elseif(!$c->isElectionStarted()) {
-						$sender->sendMessage(self::PREFIX . "§cNo election currently running on your country ! Wait " . $this->seconds2human(time()- $c->getNextElectionTime()));
+						$sender->sendMessage(Main::PREFIX . "§cYour country isn't democratic ! You cannot vote for your coountry leader !");
+					}
+					elseif(!$c->isElectionStarted()) {
+						$sender->sendMessage(Main::PREFIX . "§cNo election currently running on your country ! Wait " . $this->seconds2human(time()- $c->getNextElectionTime()));
 					} elseif(isset($args[0])) {
-                        $c->vote($sender, $args[0]);
-                    } else {
-                        return false;
-                    }
+						if(in_array($args[0], $c->getCitizens())) {
+							$c->vote($sender, $args[0]);
+							$sender->sendMessage(Main::PREFIX . "§2Succefully set your vote to $args[0]");
+						} else {
+							$sender->sendMessage(Main::PREFIX . "§cNo player in your country has name $args[0]");
+						}
+					} else {
+						return false;
+					}
+					break;
+					
+					
+					case 'mngcountry':
+										$c = CountryManager::getCountryOfPlayer($sender);
+					if($sender->getName() == $c->getOwner()) {
+						if(isset($args[0])) {
+							switch (strtolower($args[0])) {
+								case 'seemoney':
+								Main::$instance->getEconomyProvider()->getCountryMoney($c->getName());
+								break;
+							}
+						}
+					} else {
+						$sender->sendMessage(Main::PREFIX . "§cYou need to be the leader your country to manage it.");
+					}
+					break;
+					
+					
+					case "select":
+					$c = CountryManager::getCountryOfPlayer($sender);
+					if($sender->getName() == $c->getOwner()) {
+						if(isset($args[0])) {
+							if ($c->isElectionStarted() && constant(get_class($c) . "::MODEL") == Country::DICTATORSHIP) {
+								foreach ($c->getCitizens() as $citi) {
+									if ($citi == $args[0]) {
+										$c->select($citi);
+										$sender->sendMessage(Main::PREFIX . "§2Succefully choosed $citi as your successor !");
+										$c->stopElection();
+									}
+								}
+							} else {
+								$sender->sendMessage(Main::PREFIX . "§cLooks like your country is not a dicatorship or/and you cannot pick a successor yet.");
+							}
+						} else {
+							return false;
+						}
+					} else {
+						$sender->sendMessage(Main::PREFIX . "§cYou need to be the leader your country to manage it.");
+					}
 					break;
 				}
 			} else {
 				$sender->sendMessage(Main::PREFIX."§cYou must be on the RP level to execute this command.");
 			}
-		} else {
+		}
+		else {
 			$sender->sendMessage(Main::PREFIX."§cYou must be ingame to execute this command.");
 		}
 	}
@@ -108,7 +161,7 @@ class Commands extends PluginCommand  {
 		$h = floor(($ss%86400)/3600);
 		$d = floor(($ss%2592000)/86400);
 		
-		return "$d days, $h hours, $m minutes, $s seconds";
+		return "$d days, $h hours, $m minutes and $s seconds";
 	}
 	
 	

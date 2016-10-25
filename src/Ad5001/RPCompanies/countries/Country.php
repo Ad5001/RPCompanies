@@ -74,8 +74,21 @@ abstract class Country {
 	}
 	
 	
+	public function getEndElectionTime() {
+		$query =  $this->db->query("SELECT end_election FROM elections WHERE name = '$this->name'")->fetchArray();
+		$query = $query[array_keys($query)[0]];
+		if(is_array($query)) $query[array_keys($query)[0]];
+		return $query;
+	}
+	
+	
 	public function setNextElectionTime(int $time) {
 		return $this->db->exec("UPDATE election SET next_election = $time WHERE name = '$this->name'");
+	}
+	
+	
+	public function setEndElectionTime(int $time) {
+		return $this->db->exec("UPDATE election SET end_election = $time WHERE name = '$this->name'");
 	}
 	
 	
@@ -284,11 +297,28 @@ abstract class Country {
 
 
 	/*
-	Translate a countdown message fpr democratik
+	Vote function. Only for Democratik countries
+	@param     $from    Player
+	@param     $to    Player
+	*/
+	public function select(string $player) {}
+
+
+	/*
+	Translate a countdown message for democratik
 	@param     $msg    string
 	*/
 	public static function translateDemocraricMSG(string $msg) {
 		return Main::PREFIX . "§2Elections starts in $msg ! Be prepared !";
+	}
+
+
+	/*
+	Translate a countdown message for dictatorships
+	@param     $msg    string
+	*/
+	public static function translateDictatorshipMSG(string $msg) {
+		return Main::PREFIX . "§2{$this->getOwner()} will choose it's successor in $msg !";
 	}
 	
 	

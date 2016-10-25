@@ -25,6 +25,9 @@ use Ad5001\RPCompanies\contries\China;
 use Ad5001\RPCompanies\contries\Australia;
 use Ad5001\RPCompanies\contries\Amazonia;
 
+// Tasks
+use Ad5001\RPCompanies\tasks\ElectionCountdownTask;
+
 
 
 
@@ -63,7 +66,14 @@ class Main extends PluginBase implements Listener {
 		CountryManager::registerCountry(new Amazonia($this, "Amazonia", "Ad5001\\RPCompanies\\country\\Amazonia"));
 		
 		self::$instance = $this;
-
+		
+		$this->getServer()->getScheduler()->scheduleRepeatingTask(new ElectionCountdownTask($this));
+	}
+	
+	
+	
+	
+	public function onLoad(){
 		$this->db = new \SQLite3($main->getDataFolder() . "database.db");
 		$this->db->exec("IF OBJECT_ID('countries', 'U') IS NULL 
 BEGIN
@@ -93,13 +103,6 @@ CREATE TABLE elections {
 END
 ");
 		
-	}
-	
-	
-	
-	
-	public function onLoad(){
-		
 		$this->saveDefaultConfig();
 		
 		$this->countryChange = [];
@@ -111,7 +114,13 @@ END
 	
 	
 	
-	
+	/*
+	Returns the economy provider instance.
+	@param        
+	*/
+	public function getEconomyProvider() {
+		return $this->economy;
+	}
 	
 	
 	
