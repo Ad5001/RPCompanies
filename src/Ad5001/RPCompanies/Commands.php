@@ -107,14 +107,23 @@ class Commands extends PluginCommand  {
 					
 					
 					case 'mngcountry':
-										$c = CountryManager::getCountryOfPlayer($sender);
+					$c = CountryManager::getCountryOfPlayer($sender);
 					if($sender->getName() == $c->getOwner()) {
 						if(isset($args[0])) {
 							switch (strtolower($args[0])) {
 								case 'seemoney':
-								Main::$instance->getEconomyProvider()->getCountryMoney($c->getName());
+								$sender->sendMessage(Main::PREFIX . "§aYour country's money: ".Main::$instance->getEconomyProvider()->getMoney("§aCountry_" . $c->getName()));
+								break;
+								case 'givemoney':
+								if(isset($args[2])) {
+									if(Main::$instance->getEconomyProvider()->accountExists("§aCountry_" . $args[1])) {
+										Main::$instance->getEconomyProvider()->accountExists("§aCountry_" . $args[1]);
+									}
+								}
 								break;
 							}
+						} else {
+							return false;
 						}
 					} else {
 						$sender->sendMessage(Main::PREFIX . "§cYou need to be the leader your country to manage it.");

@@ -44,7 +44,7 @@ abstract class Country {
 		
 		$this->main = $main;
 		$this->name = $name;
-		$main->getEconomyProvider()->register("§aCountry_$name", 10000);
+		$main->getEconomyProvider()->register("§aCountry_$name", 100000);
 		$res = $this->db->query("SELECT * FROM countries WHERE name = $name");
 		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
 			$defaultOwner = '';

@@ -1,5 +1,6 @@
 <body style="font-family: Segoe UI light;"><center><h1 style="padding: 40px;">RPCompanies</h1></center>
 
+<h3>THIS PLUGIN IS NOT READY YET ! THERE IS NO RELEASE AND IT'S NORMAL ! CLICK ON THE WATCH BUTTON TO BE ALERTED OF ANY UPDATE.</h3>
 <center><h2>Choose a language</h2></center>
 <!-- Note for pull requests.
 Feel free to translate the README in your lang if not done and add a button here.-->

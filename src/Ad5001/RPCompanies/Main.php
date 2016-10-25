@@ -74,6 +74,9 @@ class Main extends PluginBase implements Listener {
 	
 	
 	public function onLoad(){
+		
+		self::$instance = $this;
+		
 		$this->db = new \SQLite3($main->getDataFolder() . "database.db");
 		$this->db->exec("IF OBJECT_ID('countries', 'U') IS NULL 
 BEGIN
