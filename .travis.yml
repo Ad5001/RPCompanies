@@ -17,7 +17,7 @@ before_script:
 script:
 - mkdir releases
 - curl -o plugin.sh https://raw.githubusercontent.com/pmmp/php-build-scripts/master/plugin.sh
-- ./plugin.sh -b master -o releases/ https://github.com/$REPO_OWNER/$REPO_NAME
+- /bin/sh plugin.sh -b master -o releases/ https://github.com/$REPO_OWNER/$REPO_NAME
 
 after_script:
 - cd /home/travis/build
