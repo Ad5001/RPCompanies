@@ -25,7 +25,7 @@ after_script:
 - git config --global user.name "$PUSH_REPO_USER"
 - git clone --branch=$PUSH_REPO_BRANCH https://github.com/$PUSH_REPO_OWNER/$PUSH_REPO_NAME
 # You should copy the artifacts from the build as shown below
-- cp /home/travis/build/artifacts/releases//$REPO_NAME* /home/travis/build/$PUSH_REPO_NAME/$REPO_NAME-$TRAVIS_JOB_ID.phar
+- cp /home/travis/build/artifacts/releases/$REPO_NAME* /home/travis/build/$PUSH_REPO_NAME/$REPO_NAME-$TRAVIS_JOB_ID.phar
 - cd /home/travis/build/$PUSH_REPO_NAME
 - git add releases/$REPO_NAME-$TRAVIS_JOB_ID.phar
 - git commit -am "$COMMIT_MESSAGE"
