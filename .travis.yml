@@ -38,7 +38,7 @@ env:
   - REPO_NAME="RPCompanies" # Building repository name, e.g. dmca in github/dmca
   - PUSH_REPO_OWNER="Ad5001" # Pushing repository owner, e.g. github in github/push
   - PUSH_REPO_NAME="RPCompanies" # Pushing repository name, e.g. push in github/push
-  - PUSH_REPO_USER="Ad5001" # Pushing repository GitHub user, e.g. ImagicalBot
+  - PUSH_REPO_USER="Ad5001Bot" # Pushing repository GitHub user, e.g. ImagicalBot
   - PUSH_REPO_EUSER="mail@ad5001.ga" # Pushing repository GitHub user email, e.g. admin@imagicalmine.net
   - PUSH_REPO_BRANCH="releases" # Pushing repository branch, e.g. gh-pages in github/push(use gh-pages if you want something similiar to http://github.github.io/push)
   - COMMIT_MESSAGE="This is an automatic commit adding lastest build." # Commit message to push built artifacts
