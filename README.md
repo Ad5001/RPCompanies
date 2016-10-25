@@ -32,7 +32,7 @@ RPCompanies se base sur la reprduction du systeme actuel de pays ainsi que des e
 Créez vos entreprises et managez les, engagez des personnes, dirigées des pays, partez en voyage et plus encore !
 
 ### Installation:
-Téléchargez la dernière version depuis [la page de release](http://github.com/Ad5001/RPCompanies/releases).    
+Téléchargez la dernière version depuis [la page de release](http://github.com/Ad5001/RPCompanies/blob/releases).    
 Après ceci mettez le dans votre dossier de plugin [pocketmine](http://github.com/PocketMine/PocketMine-MP).    
 Redemarez votre serveur puis modifiez la config tel vos désir (sinon vote monde par défault sera votre monde de RP !).
 Après ceci, redemarez une seconde fois le serveur et vous serez setup!     
@@ -66,10 +66,10 @@ RPCompanies is based on recreating the world current system of countries and com
 Create your own company and manage them, work for people to gain money, govern countries, go travelling and even more !
 
 ### Installation:
-First, get the lastest release from [the releases page](http://github.com/Ad5001/RPCompanies/releases).    
+First, get the lastest release from [the releases page](http://github.com/Ad5001/RPCompanies/blob/releases).    
 Then, put it into your [pocketmine](http://github.com/PocketMine/PocketMine-MP) plugin folder.    
-Restart your server and modify the config as your wishs (Or your default world will becaume your RP world).
-Après ceci, redemarez une seconde fois le serveur et vous serez setup!     
+Restart your server and modify the config as your wishs (Or your default world will becaume your RP world).    
+After this, restart one more time your server and there you go ! You setted this up.     
 
-To get more informations about the plugin, go check out the [wiki](/wiki).
+To get more informations about the plugin, go check out the [wiki](http://github.com/Ad5001/RPCompanies/wiki).
 </body>

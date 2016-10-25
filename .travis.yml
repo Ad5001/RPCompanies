@@ -1,0 +1,49 @@
+language: php
+php:
+- 7.0
+branches:
+  only:
+  # Set the branches you want built here, as shown below in "master"
+    - master
+
+before_script:
+- pecl install channel://pecl.php.net/pthreads-3.1.6
+- pecl install channel://pecl.php.net/weakref-0.3.2
+- echo | pecl install channel://pecl.php.net/yaml-2.0.0RC7
+- cd /home/travis/build
+- mkdir artifacts
+- cd /home/travis/build/artifacts
+
+script:
+- mkdir releases
+- curl -sL https://raw.githubusercontent.com/pmmp/php-build-scripts/master/plugin.sh | bash -b master -o releases/ https://github.com/$REPO_OWNER/$REPO_NAME
+
+after_script:
+- cd /home/travis/build
+- git config --global user.email "$PUSH_REPO_ESUER"
+- git config --global user.name "$PUSH_REPO_USER"
+- git clone --branch=$PUSH_REPO_BRANCH https://github.com/$PUSH_REPO_OWNER/$PUSH_REPO_NAME
+# You should copy the artifacts from the build as shown below
+- cp /home/travis/build/artifacts/releases//$REPO_NAME* /home/travis/build/$PUSH_REPO_NAME/$REPO_NAME-$TRAVIS_JOB_ID.phar
+- cd /home/travis/build/$PUSH_REPO_NAME
+- git add releases/$REPO_NAME-$TRAVIS_JOB_ID.phar
+- git commit -am "$COMMIT_MESSAGE"
+- git push https://$PUSH_REPO_USER:$GITHUB_API_KEY@github.com/$PUSH_REPO_OWNER/$PUSH_REPO_NAME $PUSH_REPO_BRANCH &>secret
+
+# VARIABLES NEED TO BE SET BELOW
+env:
+ global:
+  - REPO_OWNER="Ad5001" # Building repository owner, e.g. github in github/dmca
+  - REPO_NAME="RPCompanies" # Building repository name, e.g. dmca in github/dmca
+  - PUSH_REPO_OWNER="Ad5001" # Pushing repository owner, e.g. github in github/push
+  - PUSH_REPO_NAME="RPCompanies" # Pushing repository name, e.g. push in github/push
+  - PUSH_REPO_USER="Ad5001" # Pushing repository GitHub user, e.g. ImagicalBot
+  - PUSH_REPO_EUSER="mail@ad5001.ga" # Pushing repository GitHub user email, e.g. admin@imagicalmine.net
+  - PUSH_REPO_BRANCH="releases" # Pushing repository branch, e.g. gh-pages in github/push(use gh-pages if you want something similiar to http://github.github.io/push)
+  - COMMIT_MESSAGE="This is an automatic commit adding lastest build." # Commit message to push built artifacts
+  - DATATP="phar" # Data type of the artifact file, e.g. zip in hello.zip
+  # Don't edit anything below this line unless you know what you're doing
+  - DOWNLOAD_URI="http://$PUSH_REPO_OWNER/$PUSH_REPO_NAME/$REPO_NAME-$TRAVIS_JOB_ID.$DATATP" # Lates download URI for reference
+  - DIRECT_DL_URI="http://$PUSH_REPO_OWNER/$PUSH_REPO_NAME/service-download/$REPO_NAME.$DATATP" # Direct download URI for reference
+  # IMPORTANT:
+# The variable $GITHUB_API_KEY must be set as an environment variable of your project at travis-ci.org/repo-owner-here/repo-name-here/settings to avoid exposing the personal access token of the pushing repository GitHub user being exposed to the console and in the file as plain text.
