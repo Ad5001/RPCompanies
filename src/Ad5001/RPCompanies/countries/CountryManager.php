@@ -23,7 +23,7 @@ class CountryManager {
 	
 	
 	
-	protected $countries = [];
+	protected static $countries = [];
 	
 	
 	

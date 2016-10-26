@@ -27,6 +27,7 @@ use Ad5001\RPCompanies\contries\Amazonia;
 
 // Tasks
 use Ad5001\RPCompanies\tasks\ElectionCountdownTask;
+use Ad5001\RPCompanies\tasks\TaxTask;
 
 // Economy providers:
 use Ad5001\RPCompanies\economy\EconomyProvider;
@@ -34,6 +35,9 @@ use Ad5001\RPCompanies\economy\EconomySProvider;
 use Ad5001\RPCompanies\economy\PocketMoneyProvider;
 // use Ad5001\RPCompanies\economy\EconomyPlusProvider;
 
+// Companies related classes.
+use Ad5001\RPCompanies\Company;
+use Ad5001\RPCompanies\CompanyManager;
 
 
 
@@ -49,7 +53,7 @@ class Main extends PluginBase implements Listener {
 	const GITHUB = "https://github.com/Ad5001/RPCompanies";
 	
 	
-	public $instance;
+	public static $instance;
 	protected $countryChange;
 	protected $travel;
 	protected $economy;
@@ -81,10 +85,13 @@ class Main extends PluginBase implements Listener {
 		CountryManager::registerCountry(new China($this, "China", "Ad5001\\RPCompanies\\country\\China"));
 		CountryManager::registerCountry(new Australia($this, "Australia", "Ad5001\\RPCompanies\\country\\Australia"));
 		CountryManager::registerCountry(new Amazonia($this, "Amazonia", "Ad5001\\RPCompanies\\country\\Amazonia"));
+
+		CompanyManager::registerCompanies($this);
 		
 		self::$instance = $this;
 		
-		$this->getServer()->getScheduler()->scheduleRepeatingTask(new ElectionCountdownTask($this));
+		$this->getServer()->getScheduler()->scheduleRepeatingTask(new ElectionCountdownTask($this), 20);
+		$this->getServer()->getScheduler()->scheduleRepeatingTask(new TaxTask($this), 20*60*20);
 	}
 	
 	
@@ -140,7 +147,10 @@ CREATE TABLE companies {
 	based_country STRING,
 	current_gain INT,
 	kind INT,
-	employes_salary STRING
+	employes_salary STRING,
+	lands STRING,
+	accepts_requests BOOL,
+	pending_requests STRING
 }
 END
 ");
@@ -151,6 +161,20 @@ END
 		
 		$this->travel = [];
 		
+	}
+
+
+
+	/*
+	Called when the plugin disables
+	*/
+	public function onDisable() {
+		foreach (CountryManager::getCountries() as $c) {
+			$c->db->close();
+		}
+		foreach (CompanyManager::getCompanies() as $c) {
+			$c->db->close();
+		}
 	}
 	
 	

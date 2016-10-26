@@ -47,18 +47,23 @@ class TaxTask extends PluginTask {
             switch(true) {
                 case $t == Country::DAILY:
                 $this->main->getEconomyProvider()->takeMoney($c->getCurrentGain() * ($country->getTaxPercent() / 100));
+                $c->resetCurrentGain();
                 break;
                 case $t == Country::WEEKLY && $this->days % 7 == 0:
                 $this->main->getEconomyProvider()->takeMoney($c->getCurrentGain() * ($country->getTaxPercent() / 100));
+                $c->resetCurrentGain();
                 break;
                 case $t == Country::MOUNTHLY && $this->days % 31 == 0:
                 $this->main->getEconomyProvider()->takeMoney($c->getCurrentGain() * ($country->getTaxPercent() / 100));
+                $c->resetCurrentGain();
                 break;
                 case $t == Country::QUARTERLY && $this->days % 93 == 0:
                 $this->main->getEconomyProvider()->takeMoney($c->getCurrentGain() * ($country->getTaxPercent() / 100));
+                $c->resetCurrentGain();
                 break;
                 case $t == Country::WEEKLY && $this->days % 365 == 0:
                 $this->main->getEconomyProvider()->takeMoney($c->getCurrentGain() * ($country->getTaxPercent() / 100));
+                $c->resetCurrentGain();
                 break;
             }
         }
