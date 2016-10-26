@@ -34,6 +34,13 @@ abstract class Country {
 	// 	Election every 5 years (approximativly 1 real life month)
 	    const DICTATORSHIP = 1;
 	// 	Designation every half mounth
+
+	// TaxModels: Please notethat all of the time releated will be realeated to the minecraft time.
+	const DAILY = 0;
+	const WEEKLY = 1;
+	const MOUNTHLY = 2;
+	const QUARTERLY = 3; // For frenchs : Trimestriel.
+	const YEARLY = 4;
 	
 	
 	
@@ -45,6 +52,7 @@ abstract class Country {
 		$this->main = $main;
 		$this->name = $name;
 		$main->getEconomyProvider()->register("§aCountry_$name", 100000);
+		$this->db = new \SQLite3($main->getDataFolder() . "countries.db");
 		$res = $this->db->query("SELECT * FROM countries WHERE name = $name");
 		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
 			$defaultOwner = '';
@@ -57,6 +65,12 @@ abstract class Country {
 			$model = constant($class . "::MODEL");
 			$this->db->exec("INSERT INTO elections VALUES ('$name', '$model', '$defaultOwner', '$nextEl', 0, 0, '{}', '{}') ");
 		}
+		$res = $this->db->query("SELECT * FROM taxs WHERE name = $name");
+		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
+			$taxper = constant($class . "::COMPANYTAX");
+			$this->db->exec("INSERT INTO taxs VALUES ('$name', 2, $taxper) ");
+		}
+		$this->class = $class;
 		
 	}
 	
@@ -319,6 +333,36 @@ abstract class Country {
 	*/
 	public static function translateDictatorshipMSG(string $msg) {
 		return Main::PREFIX . "§2{$this->getOwner()} will choose it's successor in $msg !";
+	}
+
+
+	/*
+	Get tax apply time
+	*/
+	public function getTaxApplyTime() : int {
+		$ownerarray  = $this->db->query("SELECT tax_rate FROM taxs WHERE name = $this->name")->fetchArray();
+		$ownerarray = $ownerarray[array_keys($ownerarray)[0]];
+		if(is_array($ownerarray)) {
+			$ownerarray = $ownerarray[array_keys($ownerarray)[0]];
+		}
+		return $ownerarray;
+	}
+
+	/*
+	Sets tax applicable time
+	@param     $time    int
+	*/
+	public function setTaxApplyTime(int $time) {
+		if($time > 4 or $time < 0) return false;
+		return $this->db->exec("UPDATE taxs SET tax_rate = '$time' WHERE name = '$this->name'");
+	}
+
+
+	/*
+	Get's the tax percent
+	*/
+	public function getTaxtPercent() : int {
+		return (int) constant($class . "::COMPANYTAX");
 	}
 	
 	

@@ -28,6 +28,12 @@ use Ad5001\RPCompanies\contries\Amazonia;
 // Tasks
 use Ad5001\RPCompanies\tasks\ElectionCountdownTask;
 
+// Economy providers:
+use Ad5001\RPCompanies\economy\EconomyProvider;
+use Ad5001\RPCompanies\economy\EconomySProvider;
+use Ad5001\RPCompanies\economy\PocketMoneyProvider;
+// use Ad5001\RPCompanies\economy\EconomyPlusProvider;
+
 
 
 
@@ -46,15 +52,26 @@ class Main extends PluginBase implements Listener {
 	public $instance;
 	protected $countryChange;
 	protected $travel;
+	protected $economy;
 	
 	
 	
 	
 	public function onEnable(){
+
+		$pm = $this->getServer()->getPluginManager();
+
+		if($pm->getPlugin("EconomyAPI") !== null) {
+			$this->setEconomyProvider(new EconomySProvider()); 
+		} elseif ($pm->getPlugin("PocketMoney") !== null) {
+			$this->setEconomyProvider(new PocketMoneyProvider());
+		} /* elseif ($pm->getPlugin("EconomyPlus") !== null) {
+			$this->setEconomyProvider(new EconomyPlusProvider());
+		}*/
 		
 		$this->reloadConfig();
 		
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+		$pm->registerEvents($this, $this);
 		
 		CountryManager::registerCountry(new USA($this, "USA", "Ad5001\\RPCompanies\\country\\USA"));
 		CountryManager::registerCountry(new Russia($this, "Russia", "Ad5001\\RPCompanies\\country\\Russia"));
@@ -77,8 +94,8 @@ class Main extends PluginBase implements Listener {
 		
 		self::$instance = $this;
 		
-		$this->db = new \SQLite3($main->getDataFolder() . "database.db");
-		$this->db->exec("IF OBJECT_ID('countries', 'U') IS NULL 
+		$db = new \SQLite3($main->getDataFolder() . "countries.db");
+		$db->exec("IF OBJECT_ID('countries', 'U') IS NULL 
 BEGIN
 CREATE TABLE countries {
     name STRING,
@@ -91,7 +108,7 @@ CREATE TABLE countries {
 }
 END
 ");
-		$this->db->exec("IF OBJECT_ID('elections', 'U') IS NULL 
+		$db->exec("IF OBJECT_ID('elections', 'U') IS NULL 
 BEGIN
 CREATE TABLE elections {
     name STRING,
@@ -102,6 +119,28 @@ CREATE TABLE elections {
 	election_started BOOL,
     citizens STRING,
 	votes STRING
+}
+END
+");
+		$db->exec("IF OBJECT_ID('taxs', 'U') IS NULL 
+BEGIN
+CREATE TABLE taxs {
+    name STRING,
+	tax_rate INT,
+	tax_percent INT
+}
+END
+");
+		$db = new \SQLite3($main->getDataFolder() . "companies.db");
+		$db->exec("IF OBJECT_ID('companies', 'U') IS NULL 
+BEGIN
+CREATE TABLE companies {
+    name STRING,
+	owner STRING,
+	based_country STRING,
+	current_gain INT,
+	kind INT,
+	employes_salary STRING
 }
 END
 ");
@@ -118,11 +157,19 @@ END
 	
 	
 	/*
-	Returns the economy provider instance.
-	@param        
+	Returns the economy provider instance.   
 	*/
 	public function getEconomyProvider() {
 		return $this->economy;
+	}
+
+
+	/*
+	Sets the economy provider.
+	@param     $ep    EconomyProvider
+	*/
+	public function setEconomyProvider(EconomyProvider $ep) {
+		$this->economy = $ep;
 	}
 	
 	

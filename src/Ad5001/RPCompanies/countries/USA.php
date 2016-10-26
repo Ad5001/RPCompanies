@@ -30,6 +30,8 @@ class USA extends Country {
 
     const MODEL = Country::DEMOCRATIC;
 
+    const COMPANYTAX = 27;
+
      /*
     Starts the Election after the ElectionCountdownTask
     */

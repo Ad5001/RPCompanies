@@ -27,6 +27,8 @@ class Amazonia extends Country { // This is not really a country, but Brazil =/=
 
     const MODEL = Country::DEMOCRATIC;
 
+    const COMPANYTAX = 11;
+
 
     /*
     Starts the Election after the ElectionCountdownTask

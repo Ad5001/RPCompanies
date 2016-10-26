@@ -30,6 +30,8 @@ class Egypt extends Country {
 
     const MODEL = Country::DEMOCRATIC;
 
+    const COMPANYTAX = 34;
+
 
      /*
     Starts the Election after the ElectionCountdownTask

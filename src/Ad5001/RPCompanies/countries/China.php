@@ -30,6 +30,8 @@ class China extends Country {
 
     const MODEL = Country::DICTATORSHIP;
 
+    const COMPANYTAX = 25;
+
 
      /*
     Starts the Election after the ElectionCountdownTask

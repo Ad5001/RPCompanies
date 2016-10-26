@@ -30,6 +30,8 @@ class Russia extends Country {
 
     const MODEL = Country::DICTATORSHIP;
 
+    const COMPANYTAX = 30;
+
 
 
 

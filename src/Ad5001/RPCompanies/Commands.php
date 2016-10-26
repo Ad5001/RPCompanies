@@ -89,7 +89,7 @@ class Commands extends PluginCommand  {
 					case "vote":
 					$c = CountryManager::getCountryOfPlayer($sender);
 					if(constant(get_class($c) . "::MODEL") !== Country::DEMOCRATIC) {
-						$sender->sendMessage(Main::PREFIX . "§cYour country isn't democratic ! You cannot vote for your coountry leader !");
+						$sender->sendMessage(Main::PREFIX . "§cYour country isn't democratic ! You cannot vote !");
 					}
 					elseif(!$c->isElectionStarted()) {
 						$sender->sendMessage(Main::PREFIX . "§cNo election currently running on your country ! Wait " . $this->seconds2human(time()- $c->getNextElectionTime()));
@@ -114,11 +114,86 @@ class Commands extends PluginCommand  {
 								case 'seemoney':
 								$sender->sendMessage(Main::PREFIX . "§aYour country's money: ".Main::$instance->getEconomyProvider()->getMoney("§aCountry_" . $c->getName()));
 								break;
+
 								case 'givemoney':
 								if(isset($args[2])) {
-									if(Main::$instance->getEconomyProvider()->accountExists("§aCountry_" . $args[1])) {
-										Main::$instance->getEconomyProvider()->accountExists("§aCountry_" . $args[1]);
+									$ep = Main::$instance->getEconomyProvider();
+									if($ep->accountExists("§aCountry_" . $args[1])) {
+										if (is_int($args[2])) {
+											if($args[2] < $ep->getMoney("§aCountry_" . $c->getName()) / 10) {
+												$ep->addMoney($args[2], "§aCountry_" . $args[1]);
+												$ep->takeMoney($args, "§aCountry_" . $c->getName());
+											} else {
+												$sender->sendMessage(Main::PREFIX . "§cYou cannot transact that much money !");
+											}
+										} else {
+											$sender->sendMessage(Main::PREFIX . "§cAmount must be numeric !");
+										}
+									} else {
+										$sender->sendMessage(Main::PREFIX . "§cNo country exists with name $args[1] !");
 									}
+								} else {
+									$sender->sendMessage(Main::PREFIX . "§cUsage: /mngcountry givemoney <amount> !");
+								}
+								break;
+
+								case 'pay':
+								if(isset($args[2])) {
+									$ep = Main::$instance->getEconomyProvider();
+									if($ep->accountExists("§aCountry_" . $args[1])) {
+										if (is_int($args[2])) {
+											if($args[2] < 4000) { // Preventing from taking so much money. But this is based on fair :)
+												$ep->addMoney($args[2], "§aCountry_" . $args[1]);
+												$ep->takeMoney($args, "§aCountry_" . $c->getName());
+											} else {
+												$sender->sendMessage(Main::PREFIX . "§cYou cannot transact that much money !");
+											}
+										} else {
+											$sender->sendMessage(Main::PREFIX . "§cAmount must be numeric !");
+										}
+									} else {
+										$sender->sendMessage(Main::PREFIX . "§cNo country exists with name $args[1] !");
+									}
+								} else {
+									$sender->sendMessage(Main::PREFIX . "§cUsage: /mngcountry givemoney <amount> !");
+								}
+								break;
+								
+								case "settaxtime":
+								if(isset($args[1])) {
+									switch (strtolower($args[1])) {
+										case 'year':
+										case 'yearly':
+											$c->db->exec("UPDATE taxs SET tax_rate = " . Country::YEARLY . " WHERE name = '" . $c->getName() ."'");
+											$sender->sendMessage(Main::PREFIX . "§2Taxes from " . $c->getName() . " (" . constant(get_class($c) . "::COMPANYTAX") . "%) is now applied yearly.");
+										break;
+										case 'quarter':
+										case 'quarterly':
+											$c->db->exec("UPDATE taxs SET tax_rate = " . Country::QUARTERLY . " WHERE name = '" . $c->getName() ."'");
+											$sender->sendMessage(Main::PREFIX . "§2Taxes from " . $c->getName() . " (" . constant(get_class($c) . "::COMPANYTAX") . "%) is now applied quarterly.");
+										break;
+										case 'mounthly':
+										case 'mounth':
+											$c->db->exec("UPDATE taxs SET tax_rate = " . Country::MOUNTHLY . " WHERE name = '" . $c->getName() ."'");
+											$sender->sendMessage(Main::PREFIX . "§2Taxes from " . $c->getName() . " (" . constant(get_class($c) . "::COMPANYTAX") . "%) is now applied mounthly.");
+										break;
+										case 'weekly':
+										case 'week':
+											$c->db->exec("UPDATE taxs SET tax_rate = " . Country::WEEKLY . " WHERE name = '" . $c->getName() ."'");
+											$sender->sendMessage(Main::PREFIX . "§2Taxes from " . $c->getName() . " (" . constant(get_class($c) . "::COMPANYTAX") . "%) is now applied weekly.");
+										break;
+										case 'daily':
+										case 'day':
+											$c->db->exec("UPDATE taxs SET tax_rate = " . Country::DAILY . " WHERE name = '" . $c->getName() ."'");
+											$sender->sendMessage(Main::PREFIX . "§2Taxes from " . $c->getName() . " (" . constant(get_class($c) . "::COMPANYTAX") . "%) is now applied daily.");
+										break;
+										default:
+										$sender->sendMessage(Main::PREFIX . "§c$args[1] is not an applicable time tax taking. It can be yearly, mounthly, weekly or daily.");
+										break;
+										
+									}
+								} else {
+									$sender->sendMessage(Main::PREFIX . "§cUsage: /mngcountry settaxtime <yearly|mounthly|weekly|daily> !");
 								}
 								break;
 							}

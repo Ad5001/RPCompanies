@@ -7,6 +7,6 @@
 # generating so the countries will generate proprely)
 RPLevel: world
 
-# Choose with how much money does the companies starts with:
-DefaultCompanyMoney: 5000
+# Choose with how much money does the companies starts with & costs:
+DefaultCompanyPrice: 5000
 ...

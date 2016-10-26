@@ -8,4 +8,5 @@ Github: https://github.com/Ad5001/RPCompanies
 main: "Ad5001\RPCompanies\Main"
 commands: []
 permissions: []
+load: POSTLOAD
 ...

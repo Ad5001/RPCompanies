@@ -30,6 +30,8 @@ class Peru extends Country {
 
     const MODEL = Country::DEMOCRATIC;
 
+    const COMPANYTAX = 32;
+
 
      /*
     Starts the Election after the ElectionCountdownTask
