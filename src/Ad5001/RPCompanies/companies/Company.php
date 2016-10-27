@@ -19,6 +19,14 @@ use Ad5001\RPCompanies\country\Country;
 class Company {
 
 
+    // Company kinds
+    const MINING = 0;
+    const FARMING = 1;
+    const SECURITY = 2;
+    const TRAIN = 3;
+    const BLOCKSBANK = 4;
+
+
 
 
    public function __construct(string $name) {
@@ -35,13 +43,17 @@ class Company {
     @param     $kind   Int
     */
     public static function createCompany(string $name, Player $owner, int $kind) {
-		$main->getEconomyProvider()->register("§aCompany_$name", 100000);
+		$main->getEconomyProvider()->register("§aCompany_$name", Main::$instance->getConfig()->get("DefaultCompanyPrice"));
 		$this->db = new \SQLite3($main->getDataFolder() . "companies.db");
 		$res = $this->db->query("SELECT * FROM companies WHERE name = $name");
 		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
             $c = CountryManager::getCountryOfPlayer($owner)->getName();
-			$this->db->exec("INSERT INTO companies VALUES ('$name', '{$owner->getName()}', '$c', 0, $kind, '{}', '{}', 1) ");
+            $price = Main::$instance->getConfig()->get("DefaultCompanyPrice") / 10;
+			$this->db->exec("INSERT INTO companies VALUES ('$name', '{$owner->getName()}', '$c', 0, $kind, '{\"{$owner->getName()}\":\"$price}\"}', '{}', 1) ");
 		}
+        $c = new Company($name);
+        CompanyManager::register($c);
+        return $c;
     }
 
 
@@ -310,7 +322,15 @@ class Company {
 		if(!isset($json[$employe])) return false;
 		unset($json[$employe]);
 		$json = json_encode($json);
-		$this->db->exec("UPDATE countries SET citizens = '$json' WHERE name = '$this->name");
+		$this->db->exec("UPDATE companies SET pending_requets = '$json' WHERE name = '$this->name");
+    }
+
+
+    /*
+    Deletes the country.
+    */
+    public function delete() {
+        $this->db->exec("DELETE FROM companies WHERE name = '$this->name");
     }
 
 

@@ -45,6 +45,7 @@ class Commands extends PluginCommand  {
 		$cm = Server::getInstance()->getCommandMap();
 		$cm->register(self::class, new Commands($main, "vote", "Vote for a player on your countrie's elections !", "/vote <player EXACT usename of your country>"));
 		$cm->register(self::class, new Commands($main, "mngcountry", "Manage your country.", "/mngcountry <command> [parameter]"));
+		$cm->register(self::class, new Commands($main, "company", "Commpany main command..", "/company <command> [parameter]"));
 		$cm->register(self::class, new Commands($main, "select", "Choose the one who will succeed you in the dicatorship..", "/select <player EXACT usename of your country>"));
 	}
 	
@@ -196,12 +197,76 @@ class Commands extends PluginCommand  {
 									$sender->sendMessage(Main::PREFIX . "§cUsage: /mngcountry settaxtime <yearly|mounthly|weekly|daily> !");
 								}
 								break;
+								default:
+								$sender->sendMessage(Main::PREFIX . "-=< Help for /mngcountry  >=-");
+								$sender->sendMessage(Main::PREFIX . "§aseemoney §6> §fSee the country's money.");
+								$sender->sendMessage(Main::PREFIX . "§agivemoney <country> <amount> §6> §fGive money to an another country.");
+								$sender->sendMessage(Main::PREFIX . "§apay <player> <amount> §6> §fPay someone on your country.");
+								$sender->sendMessage(Main::PREFIX . "§asettaxtime <daily|weekly|mounthly|yearly> §6> §fSet tax apply time (time as minecraft. 1 day = 20 minutes).");
+								break;
 							}
+							return true;
 						} else {
 							return false;
 						}
 					} else {
 						$sender->sendMessage(Main::PREFIX . "§cYou need to be the leader your country to manage it.");
+						return true;
+					}
+					break;
+
+
+					case 'company':
+					if($sender instanceof Player &&  $sender->getName() == CompanyManager::getCompanyOfPlayer()->getOwner()) {
+						if(isset($args[0])) {
+							switch($args[0]) {
+								case 'create':
+								if(Main::$instance->getEconomyProvider()->getMoney($sender->getName()) > (int) $this->getConfig()->get("DefaultCompanyPrice")) {
+									if(isset($args[2])) {
+										if(is_null(CompanyManager::getCompanyByName($args[1]))) {
+											switch(strtolower($args[2])) {
+												case 0:
+												case "0":
+												case "mine":
+												case "mining":
+												$kind = Company::MINING;
+												$kindstr = "mining";
+												break;
+												case 1:
+												case "1":
+												case "farm":
+												case "farming":
+												$kind = Company::FARMING;
+												$kindstr = "farming";
+												break;
+												case 2:
+												case "2":
+												case "secure":
+												case "security":
+												case "securing":
+												$kind = Company::SECURITY;
+												$kindstr = "security";
+												break;
+												case 3:
+												case "3":
+												case "bank":
+												case "blockbank":
+												case "blocksbank":
+												$kind = Company::BLOCKSBANK;
+												$kindstr = "bank of blocks";
+												break;
+											}
+											if(isset($kind)) {
+												Main::$instance->getEconomyProvider()->takeMoney((int) $this->getConfig()->get("DefaultCompanyPrice"), $sender->getName());
+												$company = Company::createCompany($args[1], $sender, $kind);
+												$sender->sendMessage(Main::PREFIX . "§2Succefully created company " . $company->getName() . " in $kindstr ! Manage your comany by using /company mng <command> [arg]");
+											}
+										}
+									}
+								}
+								break;
+							}
+						}
 					}
 					break;
 					

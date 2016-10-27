@@ -31,10 +31,19 @@ class CompanyManager {
     @param     $main    Main
     */
     public static function registerAll(Main $main) {
-		$this->db = new \SQLite3($main->getDataFolder() . "countries.db");
+		$this->db = new \SQLite3($main->getDataFolder() . "companies.db");
         foreach($this->db->query("SELECT name FROM companies")->fetchArray() as $arr) {
             self::$companies[$arr["name"]] = new Company($arr["name"]);
         }
+    }
+
+
+    /*
+    Register a company
+    @param     $company    Company
+    */
+    public function register(Company $company) {
+        self::$companies[$company->getName()] = $company;
     }
 
 
@@ -49,8 +58,8 @@ class CompanyManager {
 	
 	
 	public static function getCompanyOfPlayer(Player $player) {
-		foreach(self::getCountries() as $c) {
-			if(in_array($player->getName(), $c->getCitizens())) {
+		foreach(self::getCompanies() as $c) {
+			if(in_array($player->getName(), $c->getEmployes())) {
 				return $c;
 			}
 		}
@@ -83,6 +92,17 @@ class CompanyManager {
 			}
 		}
 	}
+
+
+    /*
+    Deletes a comapny
+    @param     $name    string
+    */
+    public function deleteCompany(string $name) {
+        if(!isset(self::$companies[$name])) return false;
+       self::$companies[$name]->delete();
+       unset(self::$companies[$name]);
+    }
 
 
 
