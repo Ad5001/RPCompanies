@@ -338,6 +338,9 @@ class Commands extends PluginCommand  {
 													}
 													$sender->sendMessage(Main::PREFIX . "§2To accept a request, do /company mng employe <player>. To deny a request, do /company mng deny <player>. To not accept any longer requests a request, do /company mng requests false. ");
 													break;
+													default:
+													$sender->sendMessage(Main::PREFIX . "§cUsage: /company mng requests <true|false|view>");
+													break;
 												}
 											}
 											break;
@@ -417,7 +420,11 @@ class Commands extends PluginCommand  {
 											break;
 											
 											default:
-												# code...
+											$sender->sendMessage(Main::PREFIX . "-=< Help for /company mng >=-");
+											$sender->sendMessage(Main::PREFIX."§aemploye §6> §fEmploye someone that requested to join your company.");
+											$sender->sendMessage(Main::PREFIX."§adeny §6> §fDeny a request from someone requesting to join your company.");
+											$sender->sendMessage(Main::PREFIX."§arequests §6> §fManage your request system.");
+											$sender->sendMessage(Main::PREFIX."§acount §6> §fSee all your lands.");
 											break;
 										}
 									}
@@ -455,8 +462,7 @@ class Commands extends PluginCommand  {
 			} else {
 				$sender->sendMessage(Main::PREFIX."§cYou must be on the RP level to execute this command.");
 			}
-		}
-		else {
+		} else {
 			$sender->sendMessage(Main::PREFIX."§cYou must be ingame to execute this command.");
 		}
 	}

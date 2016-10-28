@@ -288,4 +288,50 @@ END
 			$c->addChunk($event->getChunk());
 		}
 	}
+
+
+	/*
+	Detects when a player place if not in his zone.
+	@param     $event    \pocketmine\event\block\BlockPlaceEvent
+	*/
+	public function onBlockPlace(\pocketmine\event\block\BlockPlaceEvent $event) {
+		if($event->getBlock()->getLevel() == $this->getConfig()->get("RPLevel")) {
+			$owner = "country";
+			$company = CompanyManager::getCompanyOfPlayer($event->getPlayer());
+			foreach(CompanyManager::getCompanies() as $c) {
+				foreach($c->getChunks() as $chunk) {
+					if($event->getBlock()->chunk->x == $chunk["x"] && $event->getBlock()->chunk->z == $chunk["z"]) {
+						$owner = $c->getName();
+					}
+				}
+			}
+			if($owner !== $company->getName()) {
+				$event->setCancelled();
+				$event->getPlayer()->sendPopup("§cYou cannot modify this block.");
+			}
+		}
+	}
+
+
+	/*
+	Detects when a player breaks if not in his zone.
+	@param     $event    \pocketmine\event\block\BlockPlaceEvent
+	*/
+	public function onBlockBreak(\pocketmine\event\block\BlockBreakEvent $event) {
+		if($event->getBlock()->getLevel() == $this->getConfig()->get("RPLevel")) {
+			$owner = "country";
+			$company = CompanyManager::getCompanyOfPlayer($event->getPlayer());
+			foreach(CompanyManager::getCompanies() as $c) {
+				foreach($c->getChunks() as $chunk) {
+					if($event->getBlock()->chunk->x == $chunk["x"] && $event->getBlock()->chunk->z == $chunk["z"]) {
+						$owner = $c->getName();
+					}
+				}
+			}
+			if($owner !== $company->getName()) {
+				$event->setCancelled();
+				$event->getPlayer()->sendPopup("§cYou cannot modify this block.");
+			}
+		}
+	}
 }
