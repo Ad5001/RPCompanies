@@ -217,11 +217,11 @@ class Commands extends PluginCommand  {
 
 
 					case 'company':
-					if($sender instanceof Player &&  $sender->getName() == CompanyManager::getCompanyOfPlayer()->getOwner()) {
+					if($sender instanceof Player) {
 						if(isset($args[0])) {
 							switch($args[0]) {
 								case 'create':
-								if(Main::$instance->getEconomyProvider()->getMoney($sender->getName()) > (int) $this->getConfig()->get("DefaultCompanyPrice")) {
+								if(Main::$instance->getEconomyProvider()->getMoney($sender->getName()) > (int) Main::$instance->getConfig()->get("DefaultCompanyPrice")) {
 									if(isset($args[2])) {
 										if(is_null(CompanyManager::getCompanyByName($args[1]))) {
 											switch(strtolower($args[2])) {
@@ -255,12 +255,170 @@ class Commands extends PluginCommand  {
 												$kind = Company::BLOCKSBANK;
 												$kindstr = "bank of blocks";
 												break;
+												default:
+												$sender->sendMessage(Main::PREFIX . "§cUnknown kind ! Possible kind are: 'mining', 'farming', 'security' or 'blockbank'");
+												break;
 											}
 											if(isset($kind)) {
-												Main::$instance->getEconomyProvider()->takeMoney((int) $this->getConfig()->get("DefaultCompanyPrice"), $sender->getName());
+												Main::$instance->getEconomyProvider()->takeMoney((int) Main::$instance->getConfig()->get("DefaultCompanyPrice"), $sender->getName());
 												$company = Company::createCompany($args[1], $sender, $kind);
 												$sender->sendMessage(Main::PREFIX . "§2Succefully created company " . $company->getName() . " in $kindstr ! Manage your comany by using /company mng <command> [arg]");
 											}
+										} else {
+											$sender->sendMessage(Main::PREFIX . "§cCompany with name $args[1] already exists !");
+										}
+									} else {
+										$sender->sendMessage(Main::PREFIX . "§cUsage: /company create <company name> <kind>");
+									}
+								} else {
+									$sender->sendMessage(Main::PREFIX."§cYou're too poor to create a company (need " . Main::$instance->getEconomyProvider()->translate(Main::$instance->getConfig()->get("DefaultCompanyPrice")) . "$ to create one).");
+								}
+								break;
+								
+								case "mng":
+								case "manage":
+								if($sender->getName() == CompanyManager::getCompanyOfPlayer($sender)->getOwner()) {
+									$c = CompanyManager::getCompanyOfPlayer($sender);
+									if(isset($args[1])) {
+										switch ($args[1]) {
+
+											case 'employe':
+											if(isset($args[2])) {
+												if(isset($c->getPendingRequests()[$args[2]])) {
+													$money = $c->getPendingRequests()[$args[2]];
+													$c->engageEmploye($args[2], $c->getPendingRequests()[$args[2]]);
+													$sender->sendMessage(Main::PREFIX . "§2Succefully engaged $args[2] for " . Main::$instance->getEconomyProvider()->translate($money));
+												} else {
+													$sender->sendMessage(Main::PREFIX . "§c$args[2] hasn't request to be an employe on your company.");
+												}
+											} else {
+												$sender->sendMessage(Main::PREFIX."§cUsage: /company mng employe <player>");
+											}
+											break;
+
+											case 'deny':
+											if(isset($args[2])) {
+												if(isset($c->getPendingRequests()[$args[2]])) {
+													$money = $c->getPendingRequests()[$args[2]];
+													$c->refuseRequest($args[2]);
+													$sender->sendMessage(Main::PREFIX . "§2Succefully denied $args[2] for " . Main::$instance->getEconomyProvider()->translate($money));
+												} else {
+													$sender->sendMessage(Main::PREFIX . "§c$args[2] hasn't request to be an employe on your company.");
+												}
+											} else {
+												$sender->sendMessage(Main::PREFIX."§cUsage: /company mng deny <player>");
+											}
+											break;
+
+											case 'requests':
+											if(isset($args[2])) {
+												switch($args[2]) {
+													case "false":
+													case "f":
+													case "no":
+													case "0":
+													case false:
+													case 0:
+													$c->setAcceptingRequests(false);
+													$sender->sendMessage(Main::PREFIX . "§2Your company is now denying requests.");
+													break;
+													case "true":
+													case "t":
+													case "yes":
+													case "1":
+													case true:
+													case 1:
+													$c->setAcceptingRequests(true);
+													$sender->sendMessage(Main::PREFIX . "§2Your company is now accepting requests.");
+													break;
+													case "view":
+													$sender->sendMessage(Main::PREFIX . "§2-=< List of all your requests >=-");
+													foreach ($c->getPendingRequests() as $player => $salary) {
+														$sender->sendMessage(Main::PREFIX."§2$player §6> §f ".Main::$instance->getEconomyProvider()->translate($salary));
+													}
+													$sender->sendMessage(Main::PREFIX . "§2To accept a request, do /company mng employe <player>. To deny a request, do /company mng deny <player>. To not accept any longer requests a request, do /company mng requests false. ");
+													break;
+												}
+											}
+											break;
+
+											case "land":
+											if($sender instanceof Player) {
+												$land = "free";
+												foreach(CountryManager::getCompanies() as $cs) {
+													foreach($cs->getLands() as $lands) {
+														if($lands["x"] == $sender->chunk->x && $lands["z"] == $sender->chunk->z) {
+															$land = $cs->getName();
+														}
+													}
+												}
+												if(isset($args[2])) {
+													switch($args[2]) {
+														case 'buy':
+														if($land == "free") {
+															if($c->getMoney() > 5000) {
+																$c->takeMoney(5000);
+																$c->addLand($sender->chunk);
+																$sender->sendMessage(Main::PREFIX . "§2Succefully bought the land your currently standing on (x={$sender->chunk->x},z={$sender->chunk->z})");
+															} else {
+																$sender->sendMessage(Main::PREFIX . "§cYour company doesn't have enought money to buy a land for " . Main::$instance->getEconomyProvider()->translate(5000) .".");
+															}
+														} else {
+															$sender->sendMessage(Main::PREFIX . "§cThis land is already a property of $land.You cannot buy it.");
+														}
+														break;
+														case 'sell':
+														if($land == $c->getName()) {
+															$c->addMoney(5000);
+															$c->removeLand($sender->chunk);
+															$sender->sendMessage(Main::PREFIX . "§2Succefully bought the land your currently standing on (x={$sender->chunk->x},z={$sender->chunk->z})");
+														} else {
+															$sender->sendMessage(Main::PREFIX . "§cThis land isn't your companie's property !You cannot buy it. It's $land's !");
+														}
+														break;
+														case 'view':
+														$sender->sendMessage(Main::PREFIX . "§2This land is $land's. It's located in x={$sender->chunk->x} and z={$sender->chunk->z}. It's in the country " . CountryManager::getCountryFromPos(new Position($sender->chunk->x, 10, $sender->chunk->z,$sender->getLevel()))->getName() . ".");
+														break;
+														case "count":
+														$sender->sendMessage(Main::PREFIX. "§2-=< Your companies lands >=-");
+														foreach ($c->getLands() as $land) {
+															$country = CountryManager::getCountryFromPos(new Position($land["x"], 10,$land["z"], $sender->getLevel()));
+															$sender->sendMessage(Main::PREFIX . "§2x=" . $land['x'] . " | z=" . $land["z"] . " | " . $country->getName());
+														}
+														break;
+														default:
+														$sender->sendMessage(Main::PREFIX . "-=< Help for /company mng land >=-");
+														$sender->sendMessage(Main::PREFIX."§abuy §6> §fBuy the land from the country to make it exploitable. Cost: " . Main::$instance->getEconomyProvider()->translate(5000));
+														$sender->sendMessage(Main::PREFIX."§asell §6> §fSell a land. Gives you: " . Main::$instance->getEconomyProvider()->translate(2500));
+														$sender->sendMessage(Main::PREFIX."§aview §6> §fView carateristsics of the land you're currently standing on.");
+														$sender->sendMessage(Main::PREFIX."§acount §6> §fSee all your lands.");
+														break;
+													}
+												} else {
+													$sender->sendMessage(Main::PREFIX . "-=< Help for /company mng land >=-");
+													$sender->sendMessage(Main::PREFIX."§abuy §6> §fBuy the land from the country to make it exploitable. Cost: " . Main::$instance->getEconomyProvider()->translate(5000));
+													$sender->sendMessage(Main::PREFIX."§asell §6> §fSell a land. Gives you: " . Main::$instance->getEconomyProvider()->translate(2500));
+													$sender->sendMessage(Main::PREFIX."§aview §6> §fView carateristsics of the land you're currently standing on.");
+													$sender->sendMessage(Main::PREFIX."§acount §6> §fSee all your lands.");
+												}
+											}
+											break;
+
+											case "setowner":
+											if(isset($args[2])) {
+												if(isset($c->getEmployes()[$args[2]])) {
+													$c->setOwner($args[2]);
+												} else {
+													$sender->sendMessage(Main::PREFIX . "§c$args[2] isn't one of your employes ! He cannot be the owner !");
+												}
+											} else {
+												$sender->sendMessage(Main::PREFIX . "§cUsage: /company mng setowner <employe from your company>");
+											}
+											break;
+											
+											default:
+												# code...
+											break;
 										}
 									}
 								}

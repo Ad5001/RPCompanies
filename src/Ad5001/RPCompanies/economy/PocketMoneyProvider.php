@@ -95,6 +95,15 @@ class PocketMoneyProvider extends EconomyProvider {
     }
 
 
+    /*
+    Translate an int to a money string
+    @param     $amount    int
+    */
+    public function translate(int $amount) {
+        return "$amout money";
+    }
+
+
 
 
 }

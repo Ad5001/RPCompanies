@@ -5,6 +5,7 @@ namespace Ad5001\RPCompanies;
 
 use pocketmine\Server;
 use pocketmine\Player;
+use pocketmine\level\FullChunk;
 
 use Ad5001\RPCompanies\Main;
 use Ad5001\RPCompanies\country\CountryManager;
@@ -172,7 +173,7 @@ class Company {
 		$json =  json_decode($query, true);
         if(isset($json[$employe])) unset($json_employe);
 		$json = json_encode($json);
-		return $this->db->exec("UPDATE companies SET employes_salary = '$json' WHERE name = '$this->name");
+		$this->db->exec("UPDATE companies SET pending_requests = '$json' WHERE name = '$this->name");
 		$query =  $this->db->query("SELECT employes_salary FROM companies WHERE name = '$this->name'")->fetchArray();
 		$query = $query[array_keys($query)[0]];
 		if(is_array($query)) $query[array_keys($query)[0]];
@@ -331,6 +332,45 @@ class Company {
     */
     public function delete() {
         $this->db->exec("DELETE FROM companies WHERE name = '$this->name");
+    }
+
+
+
+
+    /*
+    Add money to the company
+    @param     $money    int
+    */
+    public function addMoney(int $money) {
+        return Main::$instance->getEconomyProvider()->addMoney($money, "§aCompany_$this->name");
+    }
+
+
+    /*
+    Take money from this company
+    @param     $money    int
+    */
+    public function takeMoney(int $money) {
+        return Main::$instance->getEconomyProvider()->takeMoney($money, "§aCompany_$this->name");
+    }
+
+
+
+    /*
+    Set company's money.
+    @param     $money    int
+    */
+    public function setMoney(int $money) {
+        return Main::$instance->getEconomyProvider()->setMoney($money, "§aCompany_$this->name");
+    }
+
+
+
+    /*
+    Get company's money
+    */
+    public function getMoney() {
+        return Main::$instance->getEconomyProvider()->getMoney("§aCompany_$this->name");
     }
 
 

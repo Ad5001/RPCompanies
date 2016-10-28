@@ -103,6 +103,13 @@ abstract class EconomyProvider {
     public abstract function register(string $name, $default);
 
 
+    /*
+    Translates an int to a money string
+    @param     $money    int
+    */
+    public abstract function translate(int $money);
+
+
 
 
 }

@@ -94,6 +94,15 @@ class EconomySProvider extends EconomyProvider {
     }
 
 
+    /*
+    Translates a int to money string
+    @param     $amount    int
+    */
+    public function translate(int $amount) {
+        return $amount . $this->getAPI()->getMonetaryUnit();
+    }
+
+
 
 
 }
