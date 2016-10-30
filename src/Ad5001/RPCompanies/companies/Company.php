@@ -17,7 +17,7 @@ use Ad5001\RPCompanies\country\Country;
 
 
 
-class Company {
+class Company implements \Ad5001\RPCompanies\sellable\Buyer {
 
 
     // Company kinds
@@ -342,6 +342,7 @@ class Company {
     @param     $money    int
     */
     public function addMoney(int $money) {
+        $this->addCurrentGain($money);
         return Main::$instance->getEconomyProvider()->addMoney($money, "§aCompany_$this->name");
     }
 
@@ -351,6 +352,7 @@ class Company {
     @param     $money    int
     */
     public function takeMoney(int $money) {
+        $this->addCurrentGain(-$money);
         return Main::$instance->getEconomyProvider()->takeMoney($money, "§aCompany_$this->name");
     }
 
@@ -371,6 +373,26 @@ class Company {
     */
     public function getMoney() {
         return Main::$instance->getEconomyProvider()->getMoney("§aCompany_$this->name");
+    }
+
+
+
+    /*
+    Creates a shop for the company.
+    @param     $v3    \pocketmine\math\Vector3
+    */
+    public function createShop(\pocketmine\math\Vector3 $v3, Sellable $toSell) {
+        # Code
+    }
+
+
+
+    /*
+    Return inventory of company instance.
+    @param        
+    */
+    public function getInventory() {
+        return $this->inventory;
     }
 
 
