@@ -150,7 +150,8 @@ CREATE TABLE companies {
 	employes_salary STRING,
 	lands STRING,
 	accepts_requests BOOL,
-	pending_requests STRING
+	pending_requests STRING,
+	inventory STRING
 }
 END
 ");
@@ -287,6 +288,18 @@ END
 			$c = ContryChooser::getCountryByBiomeId($event->getChunk()->getBiomeId(7, 7));
 			$c->addChunk($event->getChunk());
 		}
+		if($event->getChunk()->getLevel()->getName() == $this->getConfig()->get("RPLevel")) {
+			foreach($chunk->getTiles() as $tile) {
+				if($tile instanceof \pocketmine\tile\Sign) {
+					if(isset($tile->namedtag->sellinfos)) {
+						if(substr($tile->namedtag->sellinfos->value, 0, strlen("SellableItem(") - 1) == "SellableItem(") {
+							$shop = SellableItem::__fromString($tile->namedtag->sellinfos->value);
+							$this->getLogger()->info(self::PREFIX . "§2Succefully loaded shop at " . new pocketmine\math\Vector3($tile->getX(), $tile->getY(), $tile->getZ() . " owned by " . $shop->getSeller()->getName() . " selling " . (string) $shop->getThingToSell() . "."));
+						}
+					}
+				}
+			}
+		}
 	}
 
 
@@ -331,6 +344,58 @@ END
 			if($owner !== $company->getName()) {
 				$event->setCancelled();
 				$event->getPlayer()->sendPopup("§cYou cannot modify this block.");
+			}
+		}
+	}
+
+
+
+	/*
+	Launched when a player touches a block.
+	@param     $event    \pocketmine\event\player\PlayerInteractEvent
+	*/
+	public function onInteract(\pocketmine\event\player\PlayerInteractEvent $event) {
+		if($event->getBlock()->getLevel() == $this->getConfig()->get("RPLevel")) {
+			switch($event->getBlock()->getId()) {
+				case 63:
+				case 68:
+				break;
+			}
+		}
+	}
+
+
+	/*
+	Called when a player finished to write on a sign.
+	@param     $event   \pocketmine\event\block\SignChangeEvent
+	*/
+	public function onSignChange(\pocketmine\event\block\SignChangeEvent $event) {
+		if($event->getBlock()->getLevel() == $this->getConfig()->get("RPLevel")) {
+			if($event->getLine(0) == "shop" && preg_match("/^(\d{1,3})(:\d{1,3}){0,1}(x\d+){0,1}$/", $event->getLine(1)) > 0 && is_int($event->getLine(2)) && $event->getPlayer() instanceof Player && CompanyManager::getCompanyOfPlayer($event->getPlayer()) instanceof Company) {
+				if(preg_match("/^(\d{1,3})(:\d{1,3})(x\d+)$/", $event->getLine(1))) {
+					$count = explode("x", $event->getLine(1))[1];
+					$line = substr(0, strlen($event->getLine(1)) - strlen($count) -1);
+					$damage = explode(":", $line)[1];
+					$id = explode(":", $line)[0];
+				} elseif(preg_match("/^(\d{1,3})(:\d{1,3})$/", $event->getLine(1))) {
+					$count = 1;
+					$damage = explode(":", $event->getLine(1))[1];
+					$id = explode(":", $event->getLine(1))[0];
+				} elseif (preg_match("/^(\d{1,3})(x\d+)$/", $event->getLine(1))) {
+					$count = explode("x", $event->getLine(1))[1];
+					$line = substr(0, strlen($event->getLine(1)) - strlen($count) -1);
+					$damage = 0;
+					$id = explode("x", $event->getLine(1))[0];
+				} elseif(preg_match("/^(\d{1,3})$/", $event->getLine(1))) {
+					$count = 1;
+					$damage = 0;
+					$id = $event->getLine(1);
+				}
+				$item = \pocketmine\item\Item::get($id, $damage);
+				$item->setCount($count);
+				$seller = CompanyManager::getCompanyOfPlayer($event->getPlayer());
+				$shop = new SellableItem($seller, $event->getLine(2), $item, $event->getBlock());
+				$sender->sendMessage(Main::PREFIX . "§2Succefully created shop !");
 			}
 		}
 	}

@@ -11,7 +11,7 @@ use pocketmine\Server;
 use pocketmine\Player;
 
 
-use pocketmine\level\FullChunk;
+use pocketmine\level\format\FullChunk;
 
 
 

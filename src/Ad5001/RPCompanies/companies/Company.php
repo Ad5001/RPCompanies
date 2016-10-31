@@ -5,7 +5,8 @@ namespace Ad5001\RPCompanies;
 
 use pocketmine\Server;
 use pocketmine\Player;
-use pocketmine\level\FullChunk;
+use pocketmine\level\format\FullChunk;
+use pockemtine\item\Item;
 
 use Ad5001\RPCompanies\Main;
 use Ad5001\RPCompanies\country\CountryManager;
@@ -34,6 +35,20 @@ class Company implements \Ad5001\RPCompanies\sellable\Buyer {
         $this->name = $name;
         Main::$instance->getEconomyProvider()->register("§eCompany_$name");
 		$this->db = new \SQLite3($main->getDataFolder() . "countries.db");
+        $items  = $this->db->query("SELECT current_gain FROM companies WHERE name = $this->name")->fetchArray();
+		$itemsjson = $items[array_keys($items)[0]];
+		if(is_array($items)) {
+			$itemsjson = $itemsjson[array_keys($itemsjson)[0]];
+		}
+        $items = [];
+        foreach(json_decode($itemsjson) as $item) {
+            $parts = explode(":", $item);
+            $item = Item::get($parts[0], $parts[1]);
+            $item->setCount($parts[2]);
+            $items[] = $item;
+        }
+        $this->inventory = new CompanyInventory($this, new InventoryType(100, $this->name), $items);
+        $this->inventory->reload(); // Basicly loads from the database
     }
 
 
@@ -50,7 +65,7 @@ class Company implements \Ad5001\RPCompanies\sellable\Buyer {
 		if (!($res->numColumns() && $res->columnType(0) != SQLITE3_NULL)) {
             $c = CountryManager::getCountryOfPlayer($owner)->getName();
             $price = Main::$instance->getConfig()->get("DefaultCompanyPrice") / 10;
-			$this->db->exec("INSERT INTO companies VALUES ('$name', '{$owner->getName()}', '$c', 0, $kind, '{\"{$owner->getName()}\":\"$price}\"}', '{}', 1) ");
+			$this->db->exec("INSERT INTO companies VALUES ('$name', '{$owner->getName()}', '$c', 0, $kind, '{\"{$owner->getName()}\":\"$price}\"}', '{}', 1, '{}', '{}') ");
 		}
         $c = new Company($name);
         CompanyManager::register($c);
@@ -378,21 +393,30 @@ class Company implements \Ad5001\RPCompanies\sellable\Buyer {
 
 
     /*
-    Creates a shop for the company.
-    @param     $v3    \pocketmine\math\Vector3
-    */
-    public function createShop(\pocketmine\math\Vector3 $v3, Sellable $toSell) {
-        # Code
-    }
-
-
-
-    /*
     Return inventory of company instance.
-    @param        
     */
     public function getInventory() {
         return $this->inventory;
+    }
+
+
+    /*
+    Stringify the company
+    */
+    public function __toString() {
+        return "Company(" . $this->name . ")";
+    }
+
+
+    /*
+    Return company from string
+    @param     $str    string
+    */
+    public static function __fromString(string $str) {
+       if(substr($str, 0, strlen("Company(") - 1) == "Company(") {
+           $str = substr($str, strlen("Company(") - 1, strlen($str) - 1);
+           return new Company($str);
+       }
     }
 
 
