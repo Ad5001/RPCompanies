@@ -46,6 +46,7 @@ class SellableItem implements Sellable {
        $this->sign->namedtag->Text4 = new StringTag("Text4", "Seller: " . $buyer->getName());
        $this->sign->namedtag->selling = new IntTag("selling", Sellable::ITEM);
        $this->sign->namedtag->sellinfos = new StringTag("sellinfos", $this->__toString());
+       $this->sign->sellinstance = $this;
        $this->sign->spawnToAll();
        
        if($this->sign->chunk){
@@ -106,7 +107,7 @@ class SellableItem implements Sellable {
 
 
    public function buy(Buyer $buyer) {
-       if($this->seller->getInventory()->contains($this->thingtosell)) {
+       if($this->seller->getInventory()->contains($this->thingtosell) && $buyer->getMoney() > $this->price) {
            foreach($this->seller->getInventory()->getContents() as $index => $i){
                if($i->getId() == $this->thingtosell->getId() && $i->getId() == $this->thingtosell->getDamage() && $i->getCount() >= $this->thingtosell->getCount()){
                    $i->setCount($i->getCount() - $this->thingtosell->getCount());
@@ -120,6 +121,9 @@ class SellableItem implements Sellable {
            $buyer->getInventory()->addItem($this->thingtosell);
            $buyer->takeMoney($this->price);
            $this->seller->addMoney($this->price);
+           return true;
+       } else {
+           return false;
        }
    }
 

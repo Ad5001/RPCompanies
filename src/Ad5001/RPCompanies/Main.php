@@ -359,6 +359,12 @@ END
 			switch($event->getBlock()->getId()) {
 				case 63:
 				case 68:
+				$tile = $event->getBlock()->getLevel()->getTile($block);
+				if(isset($tile->sellninstance)) {
+					if($tile->sellinstance->buy(new PlayerBuyer($event->getPlayer()))) {
+						$sender->sendMessage(self::PREFIX . "§2Succefully bought " . $tile->sellinstance->getThingToSell()->getCount() . " " . $tile->sellinstance->getThingToSell()->getName() . ":". $tile->sellinstance->getThingToSell()->getDamage() . " for " . $this->getEconomyProvider()->translate($tile->sellinstance->getPrice()));
+					}
+				}
 				break;
 			}
 		}
