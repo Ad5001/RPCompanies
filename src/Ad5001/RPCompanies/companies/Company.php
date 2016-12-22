@@ -22,11 +22,7 @@ class Company implements \Ad5001\RPCompanies\sellable\Buyer {
 
 
     // Company kinds
-    const MINING = 0;
-    const FARMING = 1;
-    const SECURITY = 2;
-    const TRAIN = 3;
-    const BLOCKSBANK = 4;
+    const TYPES = ["MINING" => 0, "FARMING" => 1, "TOOLS" => 2, "BUILDS" => 3];
 
 
 

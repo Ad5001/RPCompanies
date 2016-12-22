@@ -224,41 +224,12 @@ class Commands extends PluginCommand  {
 								if(Main::$instance->getEconomyProvider()->getMoney($sender->getName()) > (int) Main::$instance->getConfig()->get("DefaultCompanyPrice")) {
 									if(isset($args[2])) {
 										if(is_null(CompanyManager::getCompanyByName($args[1]))) {
-											switch(strtolower($args[2])) {
-												case 0:
-												case "0":
-												case "mine":
-												case "mining":
-												$kind = Company::MINING;
-												$kindstr = "mining";
-												break;
-												case 1:
-												case "1":
-												case "farm":
-												case "farming":
-												$kind = Company::FARMING;
-												$kindstr = "farming";
-												break;
-												case 2:
-												case "2":
-												case "secure":
-												case "security":
-												case "securing":
-												$kind = Company::SECURITY;
-												$kindstr = "security";
-												break;
-												case 3:
-												case "3":
-												case "bank":
-												case "blockbank":
-												case "blocksbank":
-												$kind = Company::BLOCKSBANK;
-												$kindstr = "bank of blocks";
-												break;
-												default:
-												$sender->sendMessage(Main::PREFIX . "§cUnknown kind ! Possible kind are: 'mining', 'farming', 'security' or 'blockbank'");
-												break;
-											}
+												if(isset(Company::TYPES[strtoupper($args[2])])) {
+													$kind = Company::TYPES[strtoupper($args[2])];
+													$kindstr = strtolower($args[2]);
+												} else {
+													$sender->sendMessage(Main::PREFIX . "§cUnknown kind ! Possible kind are: 'mining', 'farming', 'tools' or 'blockbank'");
+												}
 											if(isset($kind)) {
 												Main::$instance->getEconomyProvider()->takeMoney((int) Main::$instance->getConfig()->get("DefaultCompanyPrice"), $sender->getName());
 												$company = Company::createCompany($args[1], $sender, $kind);
