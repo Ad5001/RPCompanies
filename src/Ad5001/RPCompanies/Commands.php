@@ -228,7 +228,7 @@ class Commands extends PluginCommand  {
 													$kind = Company::TYPES[strtoupper($args[2])];
 													$kindstr = strtolower($args[2]);
 												} else {
-													$sender->sendMessage(Main::PREFIX . "§cUnknown kind ! Possible kind are: 'mining', 'farming', 'tools' or 'blockbank'");
+													$sender->sendMessage(Main::PREFIX . "§cUnknown kind ! Possible kind are: " . implode(", ",array_keys(Company::TYPES)));
 												}
 											if(isset($kind)) {
 												Main::$instance->getEconomyProvider()->takeMoney((int) Main::$instance->getConfig()->get("DefaultCompanyPrice"), $sender->getName());

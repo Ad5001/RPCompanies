@@ -78,6 +78,15 @@ class PlayerBuyer extends Buyer {
 
 
     /*
+    Get players's inventory
+    @return \pocketmine\inventory\Inventory
+    */
+    public function getInventory() : \pocketmine\inventory\Inventory {
+        return $this->player->getInventory();
+    }
+
+
+    /*
     Stringify the player.
     */
     public function __toString() {

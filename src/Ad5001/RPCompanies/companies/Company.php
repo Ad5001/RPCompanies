@@ -31,7 +31,7 @@ class Company implements \Ad5001\RPCompanies\sellable\Buyer {
         $this->name = $name;
         Main::$instance->getEconomyProvider()->register("§eCompany_$name");
 		$this->db = new \SQLite3($main->getDataFolder() . "countries.db");
-        $items  = $this->db->query("SELECT current_gain FROM companies WHERE name = $this->name")->fetchArray();
+        $items  = $this->db->query("SELECT inventory FROM companies WHERE name = $this->name")->fetchArray();
 		$itemsjson = $items[array_keys($items)[0]];
 		if(is_array($items)) {
 			$itemsjson = $itemsjson[array_keys($itemsjson)[0]];
@@ -86,7 +86,7 @@ class Company implements \Ad5001\RPCompanies\sellable\Buyer {
 		$ownerarray = $ownerarray[array_keys($ownerarray)[0]];
 		if(is_array($ownerarray)) {
 			$ownerarray = $ownerarray[array_keys($ownerarray)[0]];
-		}
+        }
 		return $ownerarray;
     }
 
